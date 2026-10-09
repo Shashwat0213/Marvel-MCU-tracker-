@@ -3080,3 +3080,337 @@ console.log("🎬 CineVault Part 3 loaded.");
 
 })();
 </script>
+<!-- =========================================================
+     DIRECT ONLINE SEARCH PANEL
+========================================================= -->
+<div class="modal" id="onlineSearchModal">
+  <div class="modal-content" style="grid-template-columns:1fr;max-width:720px">
+    <button class="modal-close" id="onlineSearchClose">✕</button>
+
+    <div>
+      <div class="auth-brand" style="margin-bottom:8px">🌐 DIRECT ONLINE SEARCH</div>
+      <h2 class="modal-title" style="font-size:1.6rem;margin-bottom:6px">Search Anywhere</h2>
+      <p style="color:var(--muted);font-size:.8rem;margin-bottom:18px;line-height:1.6">
+        Search on Google, YouTube, Wikipedia, IMDb, or JustWatch — then copy details back to your vault.
+      </p>
+
+      <!-- Platform chooser -->
+      <div id="platformChooser" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px">
+
+        <button class="platform-btn" data-platform="google" style="padding:14px 12px;border-radius:14px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:#fff;font-weight:600;cursor:pointer;text-align:left;font-family:inherit;transition:.25s">
+          <div style="font-size:22px;margin-bottom:6px">🔍</div>
+          <div style="font-size:.85rem;font-weight:700">Google</div>
+          <div style="font-size:.65rem;color:var(--muted);margin-top:2px">General search</div>
+        </button>
+
+        <button class="platform-btn" data-platform="youtube" style="padding:14px 12px;border-radius:14px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:#fff;font-weight:600;cursor:pointer;text-align:left;font-family:inherit;transition:.25s">
+          <div style="font-size:22px;margin-bottom:6px">▶️</div>
+          <div style="font-size:.85rem;font-weight:700">YouTube</div>
+          <div style="font-size:.65rem;color:var(--muted);margin-top:2px">Trailers, reviews</div>
+        </button>
+
+        <button class="platform-btn" data-platform="wikipedia" style="padding:14px 12px;border-radius:14px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:#fff;font-weight:600;cursor:pointer;text-align:left;font-family:inherit;transition:.25s">
+          <div style="font-size:22px;margin-bottom:6px">📖</div>
+          <div style="font-size:.85rem;font-weight:700">Wikipedia</div>
+          <div style="font-size:.65rem;color:var(--muted);margin-top:2px">Plot, cast, info</div>
+        </button>
+
+        <button class="platform-btn" data-platform="imdb" style="padding:14px 12px;border-radius:14px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:#fff;font-weight:600;cursor:pointer;text-align:left;font-family:inherit;transition:.25s">
+          <div style="font-size:22px;margin-bottom:6px">⭐</div>
+          <div style="font-size:.85rem;font-weight:700">IMDb</div>
+          <div style="font-size:.65rem;color:var(--muted);margin-top:2px">Ratings, reviews</div>
+        </button>
+
+        <button class="platform-btn" data-platform="justwatch" style="padding:14px 12px;border-radius:14px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:#fff;font-weight:600;cursor:pointer;text-align:left;font-family:inherit;transition:.25s">
+          <div style="font-size:22px;margin-bottom:6px">🎬</div>
+          <div style="font-size:.85rem;font-weight:700">JustWatch</div>
+          <div style="font-size:.65rem;color:var(--muted);margin-top:2px">Where to watch</div>
+        </button>
+
+        <button class="platform-btn" data-platform="tmdb" style="padding:14px 12px;border-radius:14px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:#fff;font-weight:600;cursor:pointer;text-align:left;font-family:inherit;transition:.25s">
+          <div style="font-size:22px;margin-bottom:6px">🎞️</div>
+          <div style="font-size:.85rem;font-weight:700">TMDB</div>
+          <div style="font-size:.65rem;color:var(--muted);margin-top:2px">Full movie DB</div>
+        </button>
+
+      </div>
+
+      <!-- Query input -->
+      <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+        <input id="onlineQuery"
+               placeholder="Movie name... (e.g. RRR, Oppenheimer)"
+               style="flex:1;min-width:220px;padding:13px 14px;border-radius:12px;border:1px solid var(--border);background:rgba(0,0,0,.28);color:#fff;font-family:inherit;font-size:.88rem;outline:none">
+        <button id="onlineSearchGo"
+                style="padding:13px 22px;border-radius:12px;border:0;background:linear-gradient(135deg,var(--primary),var(--primary-2));color:#0a0710;font-weight:800;cursor:pointer;font-family:inherit;font-size:.85rem">
+          🌐 Search
+        </button>
+      </div>
+
+      <!-- Quick shortcuts -->
+      <div style="margin-bottom:18px">
+        <div style="font-size:.65rem;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;font-weight:700;margin-bottom:8px">
+          Quick Actions
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap" id="quickActions">
+          <button class="quick-btn" data-action="openGoogle">🔍 Google</button>
+          <button class="quick-btn" data-action="openYouTube">▶️ Trailer on YouTube</button>
+          <button class="quick-btn" data-action="openWikipedia">📖 Wikipedia</button>
+          <button class="quick-btn" data-action="openImdb">⭐ IMDb</button>
+          <button class="quick-btn" data-action="openJustWatch">🎬 Where to Watch</button>
+          <button class="quick-btn" data-action="openPoster">🖼️ Find Poster</button>
+        </div>
+      </div>
+
+      <!-- Add manually after search -->
+      <div style="padding:14px;border:1px dashed var(--border);border-radius:14px;background:rgba(255,255,255,.02)">
+        <div style="font-size:.75rem;color:var(--muted);margin-bottom:10px;line-height:1.6">
+          💡 After searching, you can copy the title/poster URL and add it to your vault:
+        </div>
+        <button id="onlineAddManual"
+                style="padding:11px 18px;border-radius:10px;border:0;background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#fff;font-weight:700;cursor:pointer;font-family:inherit;font-size:.8rem">
+          ➕ Add Movie Manually
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<style>
+  .platform-btn:hover{
+    border-color:var(--primary) !important;
+    background:rgba(255,184,0,.08) !important;
+    transform:translateY(-2px);
+  }
+  .quick-btn{
+    padding:8px 13px;
+    border-radius:999px;
+    border:1px solid var(--border);
+    background:rgba(255,255,255,.04);
+    color:var(--text);
+    font-family:inherit;
+    font-size:.72rem;
+    font-weight:600;
+    cursor:pointer;
+    transition:.25s;
+  }
+  .quick-btn:hover{
+    border-color:var(--primary);
+    color:var(--primary);
+    transform:translateY(-1px);
+  }
+</style>
+
+<script>
+/* =========================================================
+   DIRECT ONLINE SEARCH — CINEVAULT
+   Opens the chosen platform with the movie query
+========================================================= */
+(function(){
+"use strict";
+
+var onlineSearchModal = document.getElementById("onlineSearchModal");
+var onlineSearchClose = document.getElementById("onlineSearchClose");
+var onlineQuery       = document.getElementById("onlineQuery");
+var onlineSearchGo    = document.getElementById("onlineSearchGo");
+var onlineAddManual   = document.getElementById("onlineAddManual");
+var platformBtns      = document.querySelectorAll(".platform-btn");
+var quickBtns         = document.querySelectorAll(".quick-btn");
+
+var currentPlatform = "google";
+
+/* ---------- OPEN / CLOSE ---------- */
+function openOnlineSearch(prefill){
+  if(prefill) onlineQuery.value = prefill;
+  onlineSearchModal.classList.add("active");
+  document.body.style.overflow = "hidden";
+  setTimeout(function(){ onlineQuery.focus(); }, 300);
+}
+function closeOnlineSearch(){
+  onlineSearchModal.classList.remove("active");
+  document.body.style.overflow = "";
+}
+
+if(onlineSearchClose) onlineSearchClose.addEventListener("click", closeOnlineSearch);
+if(onlineSearchModal){
+  onlineSearchModal.addEventListener("click", function(e){
+    if(e.target === onlineSearchModal) closeOnlineSearch();
+  });
+}
+
+/* ---------- PLATFORM SELECT ---------- */
+platformBtns.forEach(function(btn){
+  btn.addEventListener("click", function(){
+    currentPlatform = btn.dataset.platform;
+    platformBtns.forEach(function(b){
+      b.style.borderColor = "var(--border)";
+      b.style.background = "rgba(255,255,255,.04)";
+    });
+    btn.style.borderColor = "var(--primary)";
+    btn.style.background = "rgba(255,184,0,.10)";
+
+    // If query exists, immediately search
+    if(onlineQuery.value.trim().length >= 2){
+      runSearch();
+    }
+  });
+});
+
+/* ---------- BUILD SEARCH URLS ---------- */
+function buildUrl(platform, query){
+  var q = encodeURIComponent(query);
+
+  switch(platform){
+    case "google":
+      return "https://www.google.com/search?q=" + q + "+movie";
+    case "youtube":
+      return "https://www.youtube.com/results?search_query=" + q + "+official+trailer";
+    case "wikipedia":
+      return "https://en.wikipedia.org/wiki/Special:Search?search=" + q + "+film";
+    case "imdb":
+      return "https://www.imdb.com/find/?q=" + q;
+    case "justwatch":
+      return "https://www.justwatch.com/us/search?q=" + q;
+    case "tmdb":
+      return "https://www.themoviedb.org/search?query=" + q;
+    default:
+      return "https://www.google.com/search?q=" + q + "+movie";
+  }
+}
+
+/* ---------- RUN SEARCH ---------- */
+function runSearch(){
+  var q = onlineQuery.value.trim();
+  if(q.length < 2){
+    if(window.__cvBridge && window.__cvBridge.showToast){
+      window.__cvBridge.showToast("Please enter a movie name", "error");
+    }
+    return;
+  }
+
+  var url = buildUrl(currentPlatform, q);
+  window.open(url, "_blank", "noopener,noreferrer");
+}
+
+if(onlineSearchGo){
+  onlineSearchGo.addEventListener("click", runSearch);
+}
+if(onlineQuery){
+  onlineQuery.addEventListener("keydown", function(e){
+    if(e.key === "Enter"){
+      e.preventDefault();
+      runSearch();
+    }
+  });
+}
+
+/* ---------- QUICK ACTIONS ---------- */
+quickBtns.forEach(function(btn){
+  btn.addEventListener("click", function(){
+    var q = onlineQuery.value.trim();
+    if(q.length < 2){
+      if(window.__cvBridge && window.__cvBridge.showToast){
+        window.__cvBridge.showToast("Type a movie name first", "error");
+      }
+      onlineQuery.focus();
+      return;
+    }
+
+    var action = btn.dataset.action;
+    var url = "";
+    var encoded = encodeURIComponent(q);
+
+    switch(action){
+      case "openGoogle":
+        url = "https://www.google.com/search?q=" + encoded + "+movie";
+        break;
+      case "openYouTube":
+        url = "https://www.youtube.com/results?search_query=" + encoded + "+official+trailer";
+        break;
+      case "openWikipedia":
+        url = "https://en.wikipedia.org/wiki/Special:Search?search=" + encoded + "+film";
+        break;
+      case "openImdb":
+        url = "https://www.imdb.com/find/?q=" + encoded;
+        break;
+      case "openJustWatch":
+        url = "https://www.justwatch.com/us/search?q=" + encoded;
+        break;
+      case "openPoster":
+        url = "https://www.google.com/search?tbm=isch&q=" + encoded + "+movie+poster";
+        break;
+    }
+
+    if(url) window.open(url, "_blank", "noopener,noreferrer");
+  });
+});
+
+/* ---------- ADD MANUAL ---------- */
+if(onlineAddManual){
+  onlineAddManual.addEventListener("click", function(){
+    var q = onlineQuery.value.trim();
+    closeOnlineSearch();
+
+    // Prefill manual add form if it exists from Part 3
+    if(typeof window.__cvOpenEditModal === "function"){
+      window.__cvOpenEditModal(null);
+      // Prefill title
+      setTimeout(function(){
+        var titleInput = document.getElementById("editTitle");
+        if(titleInput && q) titleInput.value = q;
+      }, 100);
+    }else{
+      // Fallback — try to click the manual add button from Part 3
+      var manualBtn = document.getElementById("manualAddBtn");
+      if(manualBtn) manualBtn.click();
+      setTimeout(function(){
+        var titleInput = document.getElementById("editTitle");
+        if(titleInput && q) titleInput.value = q;
+      }, 200);
+    }
+  });
+}
+
+/* ---------- FLOATING BUTTON TO OPEN ---------- */
+(function(){
+  var floatingBtn = document.createElement("button");
+  floatingBtn.id = "onlineSearchFab";
+  floatingBtn.innerHTML = "🌐";
+  floatingBtn.title = "Direct Online Search";
+  floatingBtn.style.cssText =
+    "position:fixed;bottom:80px;right:22px;z-index:9998;" +
+    "width:56px;height:56px;border-radius:50%;border:0;" +
+    "background:linear-gradient(135deg,var(--primary),var(--primary-2));" +
+    "color:#0a0710;font-size:24px;cursor:pointer;" +
+    "box-shadow:0 8px 30px rgba(255,184,0,.45);" +
+    "transition:.3s;font-family:inherit;font-weight:800;" +
+    "display:flex;align-items:center;justify-content:center";
+
+  floatingBtn.addEventListener("mouseenter", function(){
+    floatingBtn.style.transform = "scale(1.1) translateY(-3px)";
+    floatingBtn.style.boxShadow = "0 12px 40px rgba(255,184,0,.6)";
+  });
+  floatingBtn.addEventListener("mouseleave", function(){
+    floatingBtn.style.transform = "scale(1)";
+    floatingBtn.style.boxShadow = "0 8px 30px rgba(255,184,0,.45)";
+  });
+  floatingBtn.addEventListener("click", function(){
+    openOnlineSearch("");
+  });
+
+  document.body.appendChild(floatingBtn);
+})();
+
+/* ---------- EXPOSE ---------- */
+window.__cvOpenOnlineSearch = openOnlineSearch;
+
+/* ---------- ESC KEY ---------- */
+document.addEventListener("keydown", function(e){
+  if(e.key === "Escape" && onlineSearchModal.classList.contains("active")){
+    closeOnlineSearch();
+  }
+});
+
+console.log("🌐 Direct Online Search loaded.");
+})();
+</script>
