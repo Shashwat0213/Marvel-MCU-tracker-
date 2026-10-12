@@ -1,6 +1,6 @@
 /* =========================================================
    CINEVAULT — APP (Main Logic)
-   Part 1/5: Setup, utilities, storage
+   Part 1/5: Setup, utilities, storage, filters
 ========================================================= */
 
 (function () {
@@ -145,7 +145,7 @@
     return list;
   }
 
-  // ⬇️ Part 2 जारी रहेगा (यहीं से paste करना है)
+  // ⬇️ Part 2 यहीं से शुरू
 /* ============ RENDER MOVIES ============ */
 function renderMovies() {
   const list = $("moviesList");
@@ -357,30 +357,24 @@ async function addMovieFromResult(result) {
     return;
   }
 
+  const isTV = result.type === "series" || result.type === "tv";
+
   let extra = {};
   if (result.source === "tmdb" && result.tmdbId) {
     toast("⏳ Fetching full details...");
-    const details = await API.fetchTMDBDetails(result.tmdbId);
+    const details = await API.fetchTMDBDetails(result.tmdbId, isTV);
     if (details) extra = details;
   }
 
   const movie = API.buildMovieObject(result, extra, "want");
-
-  // Detect series (heuristic: overview/title contains "season" or API type)
-  const lowerTitle = (result.title || "").toLowerCase();
-  if (lowerTitle.indexOf("season") !== -1 || lowerTitle.indexOf("series") !== -1) {
-    movie.type = "series";
-    movie.totalEpisodes = 6;
-  }
-
   state.vault.unshift(movie);
   saveVault();
   renderAll();
-  toast("✓ " + movie.title + " added to vault");
+  toast("✓ " + movie.title + " added" + (isTV ? " (Series)" : ""));
   if (AUTH && AUTH.scheduleCloudSave) AUTH.scheduleCloudSave();
 }
 
-// ⬇️ Part 3 जारी रहेगा
+// ⬇️ Part 3 यहीं से शुरू
 /* ============ SEARCH DROPDOWN ============ */
 async function renderDropdown(query) {
   const dd = $("resultsDrop");
@@ -408,7 +402,7 @@ async function renderDropdown(query) {
       dd.innerHTML =
         '<div class="drop-empty">' +
           '<div style="font-size:38px;margin-bottom:10px;opacity:.4">🎬</div>' +
-          '<div>No movies found for "<b>' + esc(query) + '</b>"</div>' +
+          '<div>No results found for "<b>' + esc(query) + '</b>"</div>' +
           '<div style="margin-top:8px;font-size:.72rem;color:var(--text-mute)">Try a different spelling or add manually.</div>' +
         '</div>';
       return;
@@ -420,12 +414,16 @@ async function renderDropdown(query) {
     let html = '<div class="drop-header">Found ' + results.length + ' results</div>';
     results.forEach(function (m, i) {
       const added = inVault[m.sourceId];
+      const isTV = m.type === "series" || m.type === "tv";
+      const typeLabel = isTV ? "📺" : "🎬";
+
       html +=
         '<div class="result-item" data-idx="' + i + '">' +
           '<img src="' + esc(m.poster) + '" alt="" onerror="this.src=\'https://placehold.co/60x90/1a1030/ffb800?text=?\'">' +
           '<div class="result-info">' +
-            '<strong>' + esc(m.title) + '</strong>' +
+            '<strong>' + typeLabel + ' ' + esc(m.title) + '</strong>' +
             '<small>' + esc(m.year) +
+              (isTV ? ' • Series' : '') +
               (m.genre ? ' • ' + esc(m.genre) : '') +
               (m.rating ? ' • ⭐ ' + Number(m.rating).toFixed(1) : '') +
             '</small>' +
@@ -481,6 +479,7 @@ function openModal(id) {
   if (titleEl) titleEl.textContent = m.title;
 
   let tags = '<span class="tag">📅 ' + esc(m.year || "—") + '</span>';
+  if (m.type === "series" || m.type === "tv") tags += '<span class="tag">📺 Series</span>';
   if (m.tmdbRating) tags += '<span class="tag rating">⭐ TMDB ' + Number(m.tmdbRating).toFixed(1) + '</span>';
   if (m.genre) tags += '<span class="tag">🎭 ' + esc(m.genre) + '</span>';
   if (m.runtime) tags += '<span class="tag">⏱️ ' + m.runtime + ' min</span>';
@@ -544,7 +543,7 @@ function closeModal() {
 function openEdit(id) {
   state.editingId = id || null;
   const titleEl = $("editTitle");
-  if (titleEl) titleEl.textContent = id ? "Edit Movie" : "Add Movie";
+  if (titleEl) titleEl.textContent = id ? "Edit" : "Add Manually";
 
   let data = {
     title: "", year: "", type: "movie", genre: "", poster: "",
@@ -647,7 +646,6 @@ function handleEditSubmit(event) {
       m.runtime = payload.runtime || m.runtime;
       if (payload.totalEpisodes) m.totalEpisodes = payload.totalEpisodes;
 
-      // Initialize episodes if series & none exist
       if (m.type === "series" && (!m.episodes || m.episodes.length === 0)) {
         const total = m.totalEpisodes || 6;
         m.episodes = [];
@@ -656,7 +654,7 @@ function handleEditSubmit(event) {
         }
       }
     }
-    toast("✓ Movie updated");
+    toast("✓ Updated");
   } else {
     const newMovie = {
       id: "cv-manual-" + Date.now(),
@@ -686,7 +684,6 @@ function handleEditSubmit(event) {
       episodes: []
     };
 
-    // Initialize episodes if series
     if (payload.type === "series") {
       const total = payload.totalEpisodes || 6;
       newMovie.totalEpisodes = total;
@@ -696,7 +693,7 @@ function handleEditSubmit(event) {
     }
 
     state.vault.unshift(newMovie);
-    toast("✓ Movie added to vault");
+    toast("✓ Added");
   }
 
   saveVault();
@@ -710,10 +707,10 @@ function getVal(id) {
   return el ? (el.value || "") : "";
 }
 
-// ⬇️ Part 4 जारी रहेगा
+// ⬇️ Part 4 यहीं से शुरू
 /* ============ BIND EVENTS ============ */
 function bindEvents() {
-  // Search input
+  // Search
   const searchInput = $("searchInput");
   if (searchInput) {
     const debouncedSearch = debounce(function (q) { renderDropdown(q); }, CFG.APP_CONFIG.searchDebounce);
@@ -730,7 +727,7 @@ function bindEvents() {
     if (!e.target.closest("#searchArea")) closeDropdown();
   });
 
-  // Dropdown clicks
+  // Dropdown
   const dd = $("resultsDrop");
   if (dd) {
     dd.addEventListener("click", function (e) {
@@ -752,7 +749,7 @@ function bindEvents() {
     });
   }
 
-  // Chips (filters)
+  // Chips
   document.querySelectorAll(".chip[data-chip]").forEach(function (chip) {
     chip.addEventListener("click", function () {
       document.querySelectorAll(".chip[data-chip]").forEach(function (c) { c.classList.remove("active"); });
@@ -802,7 +799,7 @@ function bindEvents() {
     });
   });
 
-  // Modal action buttons
+  // Modal actions
   bindClick("btnFav", function () { if (state.modalId) toggleFav(state.modalId); });
   bindClick("btnFavQuick", function (e) { if (state.modalId) toggleFav(state.modalId, e); });
   bindClick("btnTrailer", function () { openMovieLink("trailerUrl"); });
@@ -854,7 +851,7 @@ function bindEvents() {
   });
   bindClick("heroRandomBtn", function () {
     const want = state.vault.filter(function (m) { return m.status === "want" || m.status === "watching"; });
-    if (want.length === 0) { toast("No unwatched movies in vault", true); return; }
+    if (want.length === 0) { toast("No unwatched items in vault", true); return; }
     const pick = want[Math.floor(Math.random() * want.length)];
     openModal(pick.id);
     toast("🎲 Random pick: " + pick.title);
@@ -871,7 +868,7 @@ function bindEvents() {
     });
   });
 
-  // Light/dark toggle
+  // Light/dark
   bindClick("themeToggle", function () {
     document.body.classList.toggle("light");
     const light = document.body.classList.contains("light");
@@ -880,7 +877,7 @@ function bindEvents() {
     try { localStorage.setItem(KEYS.MODE, light ? "1" : "0"); } catch (e) {}
   });
 
-  // Escape key
+  // Escape
   document.addEventListener("keydown", function (e) {
     if (e.key === "Escape") {
       const movieModal = $("movieModal");
@@ -899,13 +896,9 @@ function bindEvents() {
     }
   });
 
-  // Scroll progress
+  // Scroll
   window.addEventListener("scroll", updateScrollProgress, { passive: true });
-
-  // Scroll reveal
   setupScrollReveal();
-
-  // Hero parallax
   setupHeroParallax();
 }
 
@@ -921,12 +914,12 @@ function openMovieLink(field) {
 
 function handleDelete() {
   if (!state.modalId) return;
-  if (!confirm("Delete this movie from your vault?")) return;
+  if (!confirm("Delete this from your vault?")) return;
   state.vault = state.vault.filter(function (v) { return v.id !== state.modalId; });
   saveVault();
   renderAll();
   closeModal();
-  toast("Movie deleted");
+  toast("Deleted");
   if (AUTH && AUTH.scheduleCloudSave) AUTH.scheduleCloudSave();
 }
 
@@ -989,7 +982,7 @@ function setupHeroParallax() {
   });
 }
 
-// ⬇️ Part 5 जारी रहेगा (आखिरी भाग)
+// ⬇️ Part 5 यहीं से शुरू
   /* ============ HIDE LOADER ============ */
   function hideLoader() {
     const loader = $("appLoader");
@@ -1009,7 +1002,6 @@ function setupHeroParallax() {
       loadAchievements();
       loadWatchHistory();
 
-      // Restore theme
       try {
         const accent = localStorage.getItem(KEYS.THEME) || "gold";
         document.body.dataset.accent = accent;
@@ -1018,7 +1010,6 @@ function setupHeroParallax() {
         });
       } catch (e) {}
 
-      // Restore light mode
       try {
         if (localStorage.getItem(KEYS.MODE) === "1") {
           document.body.classList.add("light");
@@ -1027,26 +1018,23 @@ function setupHeroParallax() {
         }
       } catch (e) {}
 
-      // Search source label
       const srcEl = $("searchSource");
       if (srcEl) {
-        srcEl.textContent = CFG.TMDB_READY ? "✓ TMDB (Full Details)" : "iTunes Free Search";
+        srcEl.textContent = CFG.TMDB_READY ? "✓ TMDB (Movies + TV)" : "iTunes Free Search";
       }
 
       renderAll();
       bindEvents();
       hideLoader();
 
-      // Initialize Firebase + bind auth UI
       if (AUTH && AUTH.bindUI) AUTH.bindUI();
       if (AUTH && AUTH.init) AUTH.init();
 
-      // Initialize features
       if (window.CV_FEATURES && window.CV_FEATURES.init) {
         window.CV_FEATURES.init();
       }
 
-      console.log("🎬 CineVault ready — " + state.vault.length + " movies in vault");
+      console.log("🎬 CineVault ready — " + state.vault.length + " items in vault");
     } catch (err) {
       console.error("❌ Init failed:", err);
       hideLoader();
@@ -1077,7 +1065,6 @@ function setupHeroParallax() {
     init: init
   };
 
-  // Auto-init
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", init);
   } else {
