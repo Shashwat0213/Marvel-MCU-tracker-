@@ -55,6 +55,10 @@
     };
   }
 
+  function isSeries(m) {
+    return m && (m.type === "series" || m.type === "tv");
+  }
+
   /* ============ STORAGE ============ */
   function saveVault() {
     try { localStorage.setItem(KEYS.VAULT, JSON.stringify(state.vault)); } catch (e) {}
@@ -99,12 +103,18 @@
   function getFiltered() {
     let list = state.vault.slice();
 
+    // Status / favorites filter
     if (state.currentFilter === "favorites") {
       list = list.filter(function (m) { return m.favorite; });
+    } else if (state.currentFilter === "movie") {
+      list = list.filter(function (m) { return !isSeries(m); });
+    } else if (state.currentFilter === "series") {
+      list = list.filter(function (m) { return isSeries(m); });
     } else if (state.currentFilter !== "all") {
       list = list.filter(function (m) { return m.status === state.currentFilter; });
     }
 
+    // Search query
     if (state.currentQuery && state.currentQuery.length >= 2) {
       const q = state.currentQuery.toLowerCase();
       list = list.filter(function (m) {
@@ -114,6 +124,7 @@
       });
     }
 
+    // Advanced filters
     const af = state.advancedFilters;
     if (af.genre) {
       const g = af.genre.toLowerCase();
@@ -134,6 +145,7 @@
       });
     }
 
+    // Sort
     const s = state.currentSort;
     if (s === "recent") list.sort(function (a, b) { return (b.addedAt || 0) - (a.addedAt || 0); });
     else if (s === "title") list.sort(function (a, b) { return a.title.localeCompare(b.title); });
@@ -141,11 +153,18 @@
     else if (s === "rating") list.sort(function (a, b) { return (b.userRating || 0) - (a.userRating || 0); });
     else if (s === "tmdb") list.sort(function (a, b) { return (b.tmdbRating || 0) - (a.tmdbRating || 0); });
     else if (s === "runtime") list.sort(function (a, b) { return (b.runtime || 0) - (a.runtime || 0); });
+    else if (s === "progress") {
+      list.sort(function (a, b) {
+        const aProg = isSeries(a) ? (window.CV_EPISODES ? window.CV_EPISODES.getProgressPercent(a) : 0) : (a.status === "watched" ? 100 : 0);
+        const bProg = isSeries(b) ? (window.CV_EPISODES ? window.CV_EPISODES.getProgressPercent(b) : 0) : (b.status === "watched" ? 100 : 0);
+        return bProg - aProg;
+      });
+    }
 
     return list;
   }
 
-  // ⬇️ Part 2 यहीं से शुरू
+  // ⬇️ Part 2 जारी रहेगा
 /* ============ RENDER MOVIES ============ */
 function renderMovies() {
   const list = $("moviesList");
@@ -160,7 +179,7 @@ function renderMovies() {
         '<h3>' + (state.vault.length === 0 ? "Your vault is empty" : "No matches found") + '</h3>' +
         '<p>' +
           (state.vault.length === 0
-            ? "Search any movie above and click '+ Add' to start building your collection."
+            ? "Search any movie or series above and click '+ Add' to start building your collection."
             : "Try changing filters or search term.") +
         '</p>' +
       '</li>';
@@ -176,25 +195,45 @@ function renderMovies() {
     li.style.animationDelay = (i * 0.03) + "s";
 
     const statusMeta = CFG.STATUS_OPTIONS[m.status] || CFG.STATUS_OPTIONS.want;
-    const isSeries = m.type === "series" || m.type === "tv";
+    const series = isSeries(m);
 
+    // Card HTML
     let html = '';
     html += '<div class="movie-poster loading">';
     html +=   '<img src="' + esc(m.poster) + '" alt="' + esc(m.title) + '" loading="lazy">';
     html +=   '<div class="badge-status">' + statusMeta.label + '</div>';
+    if (series) html += '<div class="badge-type">📺 Series</div>';
     html +=   '<button class="btn-fav ' + (m.favorite ? 'on' : '') + '" data-fav="' + m.id + '">' + (m.favorite ? '❤️' : '♡') + '</button>';
     html += '</div>';
     html += '<div class="movie-body">';
-    html +=   '<h3 class="movie-title">' + esc(m.title) + (isSeries ? ' 📺' : '') + '</h3>';
+    html +=   '<h3 class="movie-title">' + esc(m.title) + '</h3>';
     html +=   '<div class="movie-meta">';
     html +=     '<span class="tag">📅 ' + esc(m.year || "—") + '</span>';
     if (m.tmdbRating) html += '<span class="tag rating">⭐ ' + Number(m.tmdbRating).toFixed(1) + '</span>';
     if (m.userRating) html += '<span class="tag rating">🌟 ' + m.userRating + '</span>';
     html +=   '</div>';
+
+    // Series progress bar
+    if (series) {
+      const watched = window.CV_EPISODES ? window.CV_EPISODES.getWatchedCount(m) : 0;
+      const total = window.CV_EPISODES ? window.CV_EPISODES.getTotalEpisodes(m) : (m.totalEpisodes || 0);
+      const percent = total > 0 ? Math.round((watched / total) * 100) : 0;
+      const isComplete = total > 0 && watched === total;
+
+      html += '<div class="card-series-progress ' + (isComplete ? 'complete' : '') + '">';
+      html +=   '<div class="cs-progress-bar"><div class="cs-progress-fill" style="width:' + percent + '%; --target-width:' + percent + '%"></div></div>';
+      html +=   '<div class="cs-progress-text">';
+      html +=     '<span>📺 ' + watched + '/' + total + '</span>';
+      html +=     '<strong>' + percent + '%</strong>';
+      html +=   '</div>';
+      html += '</div>';
+    }
+
     html += '</div>';
 
     li.innerHTML = html;
 
+    // Poster fallback + loaded class
     const img = li.querySelector("img");
     if (img) {
       imgFallback(img, m.title);
@@ -210,11 +249,13 @@ function renderMovies() {
       }
     }
 
+    // Click → open modal
     li.addEventListener("click", function (e) {
       if (e.target.closest("button")) return;
       openModal(m.id);
     });
 
+    // Favorite button
     const favBtn = li.querySelector("[data-fav]");
     if (favBtn) {
       favBtn.addEventListener("click", function (e) {
@@ -344,7 +385,7 @@ function syncModalStatus() {
   });
 }
 
-/* ============ ADD MOVIE ============ */
+/* ============ ADD MOVIE / SERIES ============ */
 async function addMovieFromResult(result) {
   if (!result) return;
 
@@ -374,7 +415,7 @@ async function addMovieFromResult(result) {
   if (AUTH && AUTH.scheduleCloudSave) AUTH.scheduleCloudSave();
 }
 
-// ⬇️ Part 3 यहीं से शुरू
+// ⬇️ Part 3 जारी रहेगा
 /* ============ SEARCH DROPDOWN ============ */
 async function renderDropdown(query) {
   const dd = $("resultsDrop");
@@ -466,6 +507,8 @@ function openModal(id) {
   if (!m) return;
   state.modalId = id;
 
+  const series = isSeries(m);
+
   const poster = $("mPoster");
   if (poster) {
     poster.src = m.poster || "";
@@ -479,7 +522,7 @@ function openModal(id) {
   if (titleEl) titleEl.textContent = m.title;
 
   let tags = '<span class="tag">📅 ' + esc(m.year || "—") + '</span>';
-  if (m.type === "series" || m.type === "tv") tags += '<span class="tag">📺 Series</span>';
+  if (series) tags += '<span class="tag">📺 Series</span>';
   if (m.tmdbRating) tags += '<span class="tag rating">⭐ TMDB ' + Number(m.tmdbRating).toFixed(1) + '</span>';
   if (m.genre) tags += '<span class="tag">🎭 ' + esc(m.genre) + '</span>';
   if (m.runtime) tags += '<span class="tag">⏱️ ' + m.runtime + ' min</span>';
@@ -508,17 +551,24 @@ function openModal(id) {
   const noteEl = $("mNote");
   if (noteEl) noteEl.value = m.notes || "";
 
+  // Star rating
   if (window.CV_FEATURES && window.CV_FEATURES.setStars) {
     window.CV_FEATURES.setStars(m.userRating || 0);
   }
+
+  // Similar movies
   if (window.CV_FEATURES && window.CV_FEATURES.loadSimilar) {
     window.CV_FEATURES.loadSimilar(m.tmdbId);
   }
+
+  // Watch providers
   if (window.CV_WATCH && window.CV_WATCH.renderWatchSection) {
     window.CV_WATCH.renderWatchSection(m);
   }
-  if (window.CV_EPISODES && window.CV_EPISODES.renderEpisodes) {
-    window.CV_EPISODES.renderEpisodes(m);
+
+  // SERIES INFO BOX (new episode system)
+  if (window.CV_EPISODES && window.CV_EPISODES.renderSeriesInfoBox) {
+    window.CV_EPISODES.renderSeriesInfoBox(m);
   }
 
   const modal = $("movieModal");
@@ -646,11 +696,12 @@ function handleEditSubmit(event) {
       m.runtime = payload.runtime || m.runtime;
       if (payload.totalEpisodes) m.totalEpisodes = payload.totalEpisodes;
 
+      // Initialize episodes if series & none exist
       if (m.type === "series" && (!m.episodes || m.episodes.length === 0)) {
         const total = m.totalEpisodes || 6;
         m.episodes = [];
         for (let i = 1; i <= total; i++) {
-          m.episodes.push({ number: i, watched: false, watchedAt: null, rating: 0 });
+          m.episodes.push({ number: i, title: "", watched: false, watchedAt: null, rating: 0 });
         }
       }
     }
@@ -688,7 +739,7 @@ function handleEditSubmit(event) {
       const total = payload.totalEpisodes || 6;
       newMovie.totalEpisodes = total;
       for (let i = 1; i <= total; i++) {
-        newMovie.episodes.push({ number: i, watched: false, watchedAt: null, rating: 0 });
+        newMovie.episodes.push({ number: i, title: "", watched: false, watchedAt: null, rating: 0 });
       }
     }
 
@@ -707,10 +758,10 @@ function getVal(id) {
   return el ? (el.value || "") : "";
 }
 
-// ⬇️ Part 4 यहीं से शुरू
+// ⬇️ Part 4 जारी रहेगा
 /* ============ BIND EVENTS ============ */
 function bindEvents() {
-  // Search
+  // Search input
   const searchInput = $("searchInput");
   if (searchInput) {
     const debouncedSearch = debounce(function (q) { renderDropdown(q); }, CFG.APP_CONFIG.searchDebounce);
@@ -727,7 +778,7 @@ function bindEvents() {
     if (!e.target.closest("#searchArea")) closeDropdown();
   });
 
-  // Dropdown
+  // Dropdown clicks
   const dd = $("resultsDrop");
   if (dd) {
     dd.addEventListener("click", function (e) {
@@ -749,7 +800,7 @@ function bindEvents() {
     });
   }
 
-  // Chips
+  // Chips (filters)
   document.querySelectorAll(".chip[data-chip]").forEach(function (chip) {
     chip.addEventListener("click", function () {
       document.querySelectorAll(".chip[data-chip]").forEach(function (c) { c.classList.remove("active"); });
@@ -799,7 +850,7 @@ function bindEvents() {
     });
   });
 
-  // Modal actions
+  // Modal action buttons
   bindClick("btnFav", function () { if (state.modalId) toggleFav(state.modalId); });
   bindClick("btnFavQuick", function (e) { if (state.modalId) toggleFav(state.modalId, e); });
   bindClick("btnTrailer", function () { openMovieLink("trailerUrl"); });
@@ -857,7 +908,7 @@ function bindEvents() {
     toast("🎲 Random pick: " + pick.title);
   });
 
-  // Swatches
+  // Swatches (accent themes)
   document.querySelectorAll(".swatch").forEach(function (sw) {
     sw.addEventListener("click", function () {
       const accent = sw.dataset.accent;
@@ -868,7 +919,7 @@ function bindEvents() {
     });
   });
 
-  // Light/dark
+  // Light/dark toggle
   bindClick("themeToggle", function () {
     document.body.classList.toggle("light");
     const light = document.body.classList.contains("light");
@@ -877,17 +928,27 @@ function bindEvents() {
     try { localStorage.setItem(KEYS.MODE, light ? "1" : "0"); } catch (e) {}
   });
 
-  // Escape
+  // Escape key
   document.addEventListener("keydown", function (e) {
     if (e.key === "Escape") {
       const movieModal = $("movieModal");
       const editModal = $("editModal");
+      const episodesModal = $("episodesModal");
       const authOverlay = $("authOverlay");
-      if (movieModal && movieModal.classList.contains("on")) closeModal();
-      else if (editModal && editModal.classList.contains("on")) closeEdit();
-      else if (authOverlay && authOverlay.classList.contains("open")) {
+
+      if (episodesModal && episodesModal.classList.contains("on")) {
+        if (window.CV_EPISODES && window.CV_EPISODES.closeEpisodesModal) {
+          window.CV_EPISODES.closeEpisodesModal();
+        }
+      } else if (movieModal && movieModal.classList.contains("on")) {
+        closeModal();
+      } else if (editModal && editModal.classList.contains("on")) {
+        closeEdit();
+      } else if (authOverlay && authOverlay.classList.contains("open")) {
         if (AUTH && AUTH.closeAuth) AUTH.closeAuth();
-      } else closeDropdown();
+      } else {
+        closeDropdown();
+      }
     }
     if (e.key === "/" && document.activeElement !== $("searchInput") && !e.target.closest("input, textarea, select")) {
       e.preventDefault();
@@ -896,9 +957,13 @@ function bindEvents() {
     }
   });
 
-  // Scroll
+  // Scroll progress
   window.addEventListener("scroll", updateScrollProgress, { passive: true });
+
+  // Scroll reveal
   setupScrollReveal();
+
+  // Hero parallax
   setupHeroParallax();
 }
 
@@ -982,7 +1047,7 @@ function setupHeroParallax() {
   });
 }
 
-// ⬇️ Part 5 यहीं से शुरू
+// ⬇️ Part 5 जारी रहेगा (आखिरी भाग)
   /* ============ HIDE LOADER ============ */
   function hideLoader() {
     const loader = $("appLoader");
@@ -1002,6 +1067,7 @@ function setupHeroParallax() {
       loadAchievements();
       loadWatchHistory();
 
+      // Restore accent theme
       try {
         const accent = localStorage.getItem(KEYS.THEME) || "gold";
         document.body.dataset.accent = accent;
@@ -1010,6 +1076,7 @@ function setupHeroParallax() {
         });
       } catch (e) {}
 
+      // Restore light mode
       try {
         if (localStorage.getItem(KEYS.MODE) === "1") {
           document.body.classList.add("light");
@@ -1018,6 +1085,7 @@ function setupHeroParallax() {
         }
       } catch (e) {}
 
+      // Search source label
       const srcEl = $("searchSource");
       if (srcEl) {
         srcEl.textContent = CFG.TMDB_READY ? "✓ TMDB (Movies + TV)" : "iTunes Free Search";
@@ -1027,14 +1095,18 @@ function setupHeroParallax() {
       bindEvents();
       hideLoader();
 
+      // Initialize Firebase auth
       if (AUTH && AUTH.bindUI) AUTH.bindUI();
       if (AUTH && AUTH.init) AUTH.init();
 
+      // Initialize features (star rating, collections, stats, etc.)
       if (window.CV_FEATURES && window.CV_FEATURES.init) {
         window.CV_FEATURES.init();
       }
 
       console.log("🎬 CineVault ready — " + state.vault.length + " items in vault");
+      console.log("   📺 Series support:", state.vault.filter(isSeries).length, "series");
+      console.log("   🎬 Movies:", state.vault.filter(function (m) { return !isSeries(m); }).length, "movies");
     } catch (err) {
       console.error("❌ Init failed:", err);
       hideLoader();
@@ -1043,17 +1115,25 @@ function setupHeroParallax() {
 
   /* ============ EXPORTS ============ */
   window.CV_APP = {
+    // Utilities
     esc: esc,
     toast: toast,
+    isSeries: isSeries,
+
+    // Render
     renderAll: renderAll,
     renderMovies: renderMovies,
     updateStats: updateStats,
+
+    // Storage
     saveVault: saveVault,
     loadVault: loadVault,
     saveCollections: saveCollections,
     loadCollections: loadCollections,
     saveAchievements: saveAchievements,
     saveWatchHistory: saveWatchHistory,
+
+    // Actions
     addMovieFromResult: addMovieFromResult,
     openModal: openModal,
     closeModal: closeModal,
@@ -1061,10 +1141,15 @@ function setupHeroParallax() {
     closeEdit: closeEdit,
     toggleFav: toggleFav,
     setStatus: setStatus,
+
+    // Data
     getFiltered: getFiltered,
+
+    // Lifecycle
     init: init
   };
 
+  // Auto-init
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", init);
   } else {
