@@ -1,6 +1,6 @@
 /* =========================================================
    CINEVAULT — API MODULE
-   TMDB search + iTunes fallback + detail fetching
+   TMDB multi-search (movies + TV) + iTunes fallback
 ========================================================= */
 
 (function () {
@@ -20,15 +20,15 @@
   }
 
   /* =========================================================
-     TMDB — SEARCH
-  ========================================================= */
+     TMDB — MULTI-SEARCH (Movies + TV Series)
+  ========================================================== */
   async function searchTMDB(query) {
     if (!CFG.TMDB_READY) return null;
     const q = sanitize(query);
     if (!q || q.length < 2) return null;
 
     const url =
-      "https://api.themoviedb.org/3/search/movie" +
+      "https://api.themoviedb.org/3/search/multi" +
       "?api_key=" + encodeURIComponent(CFG.TMDB_KEY) +
       "&query=" + encodeURIComponent(q) +
       "&include_adult=false" +
@@ -44,14 +44,26 @@
       const data = await res.json();
       if (!data.results || !data.results.length) return [];
 
-      return data.results.slice(0, CFG.APP_CONFIG.maxResults).map(function (m) {
+      // Filter out "person" results (multi-search returns movies, TV, AND people)
+      const filtered = data.results.filter(function (m) {
+        return m.media_type === "movie" || m.media_type === "tv";
+      });
+
+      return filtered.slice(0, CFG.APP_CONFIG.maxResults).map(function (m) {
+        const isTV = m.media_type === "tv";
+        const title = isTV
+          ? (m.name || m.original_name || "Untitled")
+          : (m.title || m.original_title || "Untitled");
+        const dateStr = isTV ? m.first_air_date : m.release_date;
+
         return {
           source: "tmdb",
           sourceId: "tmdb-" + m.id,
           tmdbId: m.id,
-          title: m.title || m.original_title || "Untitled",
-          year: (m.release_date || "").slice(0, 4) || "—",
-          releaseDate: m.release_date || "",
+          type: isTV ? "series" : "movie",
+          title: title,
+          year: (dateStr || "").slice(0, 4) || "—",
+          releaseDate: dateStr || "",
           poster: posterUrl(m.poster_path, "w500"),
           backdrop: posterUrl(m.backdrop_path, "w780"),
           overview: m.overview || "",
@@ -69,7 +81,7 @@
 
   /* =========================================================
      iTunes — FALLBACK SEARCH
-  ========================================================= */
+  ========================================================== */
   async function searchiTunes(query) {
     const q = sanitize(query);
     if (!q || q.length < 2) return [];
@@ -96,6 +108,7 @@
           source: "itunes",
           sourceId: "itunes-" + m.trackId,
           tmdbId: null,
+          type: "movie",
           title: m.trackName || "Untitled",
           year: releaseDate ? releaseDate.slice(0, 4) : "—",
           releaseDate: releaseDate,
@@ -116,7 +129,7 @@
 
   /* =========================================================
      UNIFIED SEARCH
-  ========================================================= */
+  ========================================================== */
   async function searchMovies(query) {
     const tmdb = await searchTMDB(query);
     if (tmdb !== null && tmdb.length > 0) return tmdb;
@@ -124,14 +137,15 @@
   }
 
   /* =========================================================
-     TMDB — FULL DETAILS
-  ========================================================= */
-  async function fetchTMDBDetails(tmdbId) {
+     TMDB — FULL DETAILS (Movies + TV)
+  ========================================================== */
+  async function fetchTMDBDetails(tmdbId, isTV) {
     if (!CFG.TMDB_READY || !tmdbId) return null;
 
     const key = encodeURIComponent(CFG.TMDB_KEY);
     const id = encodeURIComponent(tmdbId);
-    const base = "https://api.themoviedb.org/3/movie/" + id;
+    const mediaType = isTV ? "tv" : "movie";
+    const base = "https://api.themoviedb.org/3/" + mediaType + "/" + id;
 
     try {
       const [dR, cR, vR] = await Promise.all([
@@ -160,11 +174,14 @@
         cast = credits.cast.slice(0, 8).map(c => c.name);
       }
 
-      // Director
+      // Director / Creator
       let director = "";
       if (credits && Array.isArray(credits.crew)) {
         const d = credits.crew.find(c => c.job === "Director");
         if (d) director = d.name;
+      }
+      if (!director && details && Array.isArray(details.created_by)) {
+        director = details.created_by.map(c => c.name).join(", ");
       }
 
       // Genres
@@ -172,15 +189,28 @@
         ? details.genres.map(g => g.name).join(", ")
         : "";
 
+      // Runtime (movies) or episode runtime (TV)
+      let runtime = 0;
+      if (details && details.runtime) runtime = details.runtime;
+      else if (details && details.episode_run_time && details.episode_run_time[0]) {
+        runtime = details.episode_run_time[0];
+      }
+
+      // Total episodes/seasons for TV
+      const totalEpisodes = details && details.number_of_episodes ? details.number_of_episodes : 0;
+      const totalSeasons = details && details.number_of_seasons ? details.number_of_seasons : 0;
+
       return {
-        runtime: (details && details.runtime) || 0,
+        runtime: runtime,
         genre: genre,
         overview: (details && details.overview) || "",
         tmdbRating: (details && details.vote_average) || 0,
         trailerUrl: trailerUrl,
         cast: cast,
         director: director,
-        releaseDate: (details && details.release_date) || ""
+        releaseDate: (details && (details.release_date || details.first_air_date)) || "",
+        totalEpisodes: totalEpisodes,
+        totalSeasons: totalSeasons
       };
     } catch (err) {
       console.warn("TMDB details fetch failed:", err);
@@ -189,8 +219,8 @@
   }
 
   /* =========================================================
-     TMDB — SIMILAR MOVIES
-  ========================================================= */
+     TMDB — SIMILAR MOVIES (Movies only)
+  ========================================================== */
   async function fetchSimilarMovies(tmdbId) {
     if (!CFG.TMDB_READY || !tmdbId) return [];
 
@@ -209,6 +239,7 @@
         return {
           tmdbId: m.id,
           sourceId: "tmdb-" + m.id,
+          type: "movie",
           title: m.title || m.original_title || "Untitled",
           year: (m.release_date || "").slice(0, 4) || "—",
           releaseDate: m.release_date || "",
@@ -225,13 +256,16 @@
 
   /* =========================================================
      BUILD MOVIE OBJECT
-  ========================================================= */
+  ========================================================== */
   function buildMovieObject(result, extra, status) {
     extra = extra || {};
-    return {
+    const isSeries = result.type === "series" || result.type === "tv";
+
+    const movie = {
       id: "cv-" + Date.now() + "-" + Math.random().toString(36).slice(2, 7),
       sourceId: result.sourceId || ("manual-" + Date.now()),
       tmdbId: result.tmdbId || null,
+      type: isSeries ? "series" : "movie",
       title: result.title || "Untitled",
       year: result.year || "—",
       releaseDate: extra.releaseDate || result.releaseDate || "",
@@ -253,11 +287,24 @@
       addedAt: Date.now(),
       watchedAt: null
     };
+
+    // Auto-initialize episodes for series
+    if (isSeries) {
+      const total = extra.totalEpisodes || 6;
+      movie.totalEpisodes = total;
+      movie.totalSeasons = extra.totalSeasons || 0;
+      movie.episodes = [];
+      for (let i = 1; i <= total; i++) {
+        movie.episodes.push({ number: i, watched: false, watchedAt: null, rating: 0 });
+      }
+    }
+
+    return movie;
   }
 
   /* =========================================================
      EXPORTS
-  ========================================================= */
+  ========================================================== */
   window.CV_API = {
     searchMovies,
     searchTMDB,
@@ -269,6 +316,6 @@
   };
 
   console.log("🎬 CineVault API module loaded");
-  console.log("   🔍 Provider:", CFG.TMDB_READY ? "TMDB (primary)" : "iTunes (fallback)");
+  console.log("   🔍 Provider:", CFG.TMDB_READY ? "TMDB multi-search (Movies + TV)" : "iTunes (fallback)");
 
 })();
