@@ -1,0 +1,515 @@
+/* =========================================================
+   CINEVAULT — EPISODES FULL MODAL
+   Big, beautiful, animated episodes manager
+========================================================= */
+
+/* ============ MODAL WRAPPER ============ */
+.episodes-full-modal{
+  z-index:1100;
+  padding:20px;
+}
+
+.episodes-full-modal .episodes-modal-box{
+  width:min(720px, 96vw);
+  max-height:92vh;
+  overflow-y:auto;
+  background:
+    linear-gradient(145deg, var(--surface) 0%, var(--surface-2) 100%);
+  border:1px solid var(--border);
+  border-radius:var(--radius-xl);
+  padding:24px;
+  box-shadow:
+    0 40px 100px rgba(0,0,0,.7),
+    0 0 60px color-mix(in srgb, var(--accent) 15%, transparent);
+  transform:translateY(40px) scale(.92);
+  transition:transform .45s cubic-bezier(.16,1,.3,1);
+  position:relative;
+}
+
+.episodes-full-modal.on .episodes-modal-box{
+  transform:translateY(0) scale(1);
+}
+
+/* ============ HEADER ============ */
+.episodes-modal-header{
+  margin-bottom:20px;
+  padding-bottom:18px;
+  border-bottom:1px solid var(--border);
+}
+
+.episodes-modal-title{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  margin-bottom:18px;
+}
+
+.episodes-modal-icon{
+  width:56px;
+  height:56px;
+  border-radius:16px;
+  display:grid;
+  place-items:center;
+  font-size:28px;
+  background:linear-gradient(135deg, var(--accent), var(--primary));
+  box-shadow:0 8px 25px color-mix(in srgb, var(--accent) 40%, transparent);
+  flex-shrink:0;
+}
+
+.episodes-modal-title h2{
+  font-family:"Bebas Neue",sans-serif;
+  font-size:1.7rem;
+  letter-spacing:1px;
+  margin:0 0 4px;
+  color:var(--text);
+  line-height:1.1;
+}
+
+.episodes-modal-title p{
+  margin:0;
+  color:var(--text-dim);
+  font-size:.78rem;
+  font-weight:600;
+}
+
+/* ============ STATS ROW ============ */
+.episodes-modal-stats{
+  display:grid;
+  grid-template-columns:repeat(3, 1fr);
+  gap:10px;
+}
+
+.ep-stat{
+  padding:12px 8px;
+  text-align:center;
+  background:var(--surface-2);
+  border:1px solid var(--border);
+  border-radius:var(--radius-md);
+  transition:var(--transition);
+}
+
+.ep-stat:hover{
+  border-color:var(--primary);
+  transform:translateY(-2px);
+}
+
+.ep-stat strong{
+  display:block;
+  font-family:"Bebas Neue",sans-serif;
+  font-size:1.6rem;
+  letter-spacing:1px;
+  line-height:1;
+  margin-bottom:4px;
+  color:var(--primary);
+}
+
+.ep-stat:first-child strong{
+  color:var(--success);
+}
+
+.ep-stat span{
+  font-size:.58rem;
+  letter-spacing:1.5px;
+  text-transform:uppercase;
+  color:var(--text-mute);
+  font-weight:700;
+}
+
+/* ============ OVERALL PROGRESS ============ */
+.episodes-modal-progress{
+  margin-bottom:18px;
+  padding:14px;
+  background:var(--surface-2);
+  border:1px solid var(--border);
+  border-radius:var(--radius-md);
+}
+
+.ep-progress-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:10px;
+  font-size:.72rem;
+}
+
+.ep-progress-header span{
+  color:var(--text-dim);
+  letter-spacing:1.5px;
+  text-transform:uppercase;
+  font-weight:700;
+}
+
+.ep-progress-header strong{
+  font-family:"Bebas Neue",sans-serif;
+  font-size:1.2rem;
+  color:var(--primary);
+  letter-spacing:1px;
+}
+
+.ep-progress-track{
+  height:12px;
+  background:var(--surface);
+  border-radius:99px;
+  overflow:hidden;
+  border:1px solid var(--border);
+}
+
+.ep-progress-fill{
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg, var(--success), #4ade80, var(--primary));
+  background-size:200% 100%;
+  border-radius:99px;
+  transition:width .8s cubic-bezier(.4,0,.2,1);
+  box-shadow:0 0 15px color-mix(in srgb, var(--success) 50%, transparent);
+  animation:epProgressShimmer 3s ease infinite;
+}
+
+@keyframes epProgressShimmer{
+  0%{background-position:0% 50%;}
+  100%{background-position:200% 50%;}
+}
+
+/* ============ ACTION BUTTONS ============ */
+.episodes-modal-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-bottom:18px;
+}
+
+.ep-action-btn{
+  flex:1;
+  min-width:120px;
+  padding:11px 16px;
+  border-radius:var(--radius-sm);
+  border:1px solid var(--border);
+  background:var(--surface-2);
+  color:var(--text);
+  font-family:inherit;
+  font-size:.75rem;
+  font-weight:700;
+  cursor:pointer;
+  transition:var(--transition);
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  white-space:nowrap;
+}
+
+.ep-action-btn:hover{
+  border-color:var(--primary);
+  color:var(--primary);
+  transform:translateY(-2px);
+}
+
+.ep-action-btn.success{
+  background:linear-gradient(135deg, var(--success), #4ade80);
+  color:#0a0614;
+  border-color:transparent;
+  font-weight:800;
+}
+
+.ep-action-btn.success:hover{
+  box-shadow:0 8px 25px rgba(34,197,94,.4);
+  color:#0a0614;
+}
+
+/* ============ EPISODES LIST ============ */
+.episodes-modal-list{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  max-height:52vh;
+  overflow-y:auto;
+  padding:4px 4px 4px 0;
+  margin-bottom:16px;
+}
+
+.episodes-modal-list::-webkit-scrollbar{
+  width:6px;
+}
+
+.episodes-modal-list::-webkit-scrollbar-thumb{
+  background:color-mix(in srgb, var(--primary) 40%, transparent);
+  border-radius:20px;
+}
+
+/* ============ EPISODE ITEM ============ */
+.ep-item{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:14px 16px;
+  background:var(--surface-2);
+  border:1px solid var(--border);
+  border-radius:var(--radius-md);
+  cursor:pointer;
+  transition:all .3s cubic-bezier(.4,0,.2,1);
+  position:relative;
+  overflow:hidden;
+}
+
+.ep-item::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:0;
+  bottom:0;
+  width:3px;
+  background:var(--text-mute);
+  transition:background .3s;
+}
+
+.ep-item:hover{
+  border-color:var(--primary);
+  transform:translateX(4px);
+  background:color-mix(in srgb, var(--primary) 6%, var(--surface-2));
+}
+
+.ep-item:hover::before{
+  background:var(--primary);
+}
+
+.ep-item.watched{
+  background:color-mix(in srgb, var(--success) 8%, var(--surface-2));
+  border-color:color-mix(in srgb, var(--success) 35%, transparent);
+}
+
+.ep-item.watched::before{
+  background:var(--success);
+  box-shadow:0 0 10px var(--success);
+}
+
+.ep-item.watched .ep-number{
+  color:var(--success);
+}
+
+/* Episode checkbox */
+.ep-checkbox{
+  width:26px;
+  height:26px;
+  border-radius:8px;
+  border:2px solid var(--border);
+  background:var(--surface);
+  display:grid;
+  place-items:center;
+  flex-shrink:0;
+  transition:all .3s cubic-bezier(.4,0,.2,1);
+  position:relative;
+}
+
+.ep-item.watched .ep-checkbox{
+  background:linear-gradient(135deg, var(--success), #4ade80);
+  border-color:transparent;
+  box-shadow:0 4px 12px rgba(34,197,94,.4);
+}
+
+.ep-checkbox::after{
+  content:"✓";
+  color:#0a0614;
+  font-size:14px;
+  font-weight:900;
+  opacity:0;
+  transform:scale(0);
+  transition:all .3s cubic-bezier(.34,1.56,.64,1);
+}
+
+.ep-item.watched .ep-checkbox::after{
+  opacity:1;
+  transform:scale(1);
+}
+
+/* Episode number */
+.ep-number{
+  font-family:"Bebas Neue",sans-serif;
+  font-size:1.3rem;
+  letter-spacing:1px;
+  color:var(--text-mute);
+  min-width:44px;
+  font-weight:800;
+  transition:color .3s;
+}
+
+/* Episode info */
+.ep-info{
+  flex:1;
+  min-width:0;
+}
+
+.ep-info strong{
+  display:block;
+  font-size:.85rem;
+  font-weight:700;
+  color:var(--text);
+  margin-bottom:3px;
+}
+
+.ep-info small{
+  display:block;
+  font-size:.68rem;
+  color:var(--text-dim);
+  font-weight:600;
+}
+
+.ep-info .ep-watched-date{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  margin-top:6px;
+  padding:3px 8px;
+  border-radius:6px;
+  background:color-mix(in srgb, var(--success) 15%, transparent);
+  color:var(--success);
+  font-size:.6rem;
+  font-weight:700;
+}
+
+/* Episode rating */
+.ep-rate-btn{
+  padding:6px 10px;
+  border-radius:8px;
+  border:1px solid var(--border);
+  background:var(--surface);
+  color:var(--text-dim);
+  font-size:.7rem;
+  font-weight:700;
+  cursor:pointer;
+  transition:var(--transition);
+  flex-shrink:0;
+  min-width:44px;
+  text-align:center;
+}
+
+.ep-rate-btn:hover{
+  border-color:#ffd700;
+  color:#ffd700;
+  transform:scale(1.05);
+}
+
+.ep-rate-btn.has-rating{
+  border-color:#ffd700;
+  background:rgba(255,215,0,.1);
+  color:#ffd700;
+}
+
+/* ============ FOOTER ============ */
+.episodes-modal-footer{
+  text-align:center;
+  padding-top:14px;
+  border-top:1px solid var(--border);
+  font-size:.68rem;
+  color:var(--text-mute);
+  font-weight:600;
+}
+
+/* ============ MARK ALL ANIMATION ============ */
+@keyframes epMarkAll{
+  0%{transform:scale(1);}
+  50%{transform:scale(1.05);background:color-mix(in srgb, var(--success) 30%, var(--surface-2));}
+  100%{transform:scale(1);}
+}
+
+.ep-item.marking{
+  animation:epMarkAll .5s cubic-bezier(.4,0,.2,1);
+}
+
+/* ============ COMPLETE CELEBRATION ============ */
+.episodes-full-modal.completed .episodes-modal-box{
+  border-color:var(--success);
+  box-shadow:
+    0 40px 100px rgba(0,0,0,.7),
+    0 0 80px rgba(34,197,94,.3);
+}
+
+.episodes-full-modal.completed .episodes-modal-icon{
+  background:linear-gradient(135deg, var(--success), #4ade80);
+  box-shadow:0 8px 30px rgba(34,197,94,.6);
+}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width:700px){
+  .episodes-full-modal{
+    padding:10px;
+  }
+  .episodes-modal-box{
+    padding:18px;
+    max-height:95vh;
+    border-radius:var(--radius-lg);
+  }
+  .episodes-modal-icon{
+    width:46px;
+    height:46px;
+    font-size:22px;
+  }
+  .episodes-modal-title h2{
+    font-size:1.35rem;
+  }
+  .episodes-modal-title p{
+    font-size:.7rem;
+  }
+  .ep-stat strong{
+    font-size:1.3rem;
+  }
+  .ep-stat span{
+    font-size:.5rem;
+  }
+  .ep-action-btn{
+    font-size:.68rem;
+    padding:10px 12px;
+    min-width:100px;
+  }
+  .ep-item{
+    padding:11px 13px;
+    gap:11px;
+  }
+  .ep-checkbox{
+    width:24px;
+    height:24px;
+  }
+  .ep-number{
+    font-size:1.1rem;
+    min-width:38px;
+  }
+  .ep-info strong{
+    font-size:.78rem;
+  }
+  .ep-info small{
+    font-size:.62rem;
+  }
+  .ep-rate-btn{
+    padding:5px 8px;
+    font-size:.65rem;
+    min-width:38px;
+  }
+}
+
+@media (max-width:420px){
+  .episodes-modal-box{
+    padding:14px;
+  }
+  .episodes-modal-stats{
+    gap:6px;
+  }
+  .ep-stat{
+    padding:10px 6px;
+  }
+  .ep-stat strong{
+    font-size:1.2rem;
+  }
+  .ep-item{
+    padding:10px 11px;
+    gap:9px;
+  }
+  .ep-number{
+    font-size:1rem;
+    min-width:34px;
+  }
+  .ep-info strong{
+    font-size:.72rem;
+  }
+  .ep-info small{
+    font-size:.58rem;
+  }
+}
