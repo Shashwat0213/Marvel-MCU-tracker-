@@ -6,23 +6,20 @@
 <meta name="theme-color" content="#08060f">
 <title>CineVault — Track Every Movie You Love</title>
 
-<!-- Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
-<!-- Styles -->
 <link rel="stylesheet" href="styles/main.css">
 <link rel="stylesheet" href="styles/themes.css">
 <link rel="stylesheet" href="styles/animations.css">
 <link rel="stylesheet" href="styles/watch.css">
+<link rel="stylesheet" href="styles/episodes.css">
 </head>
 <body data-accent="gold">
 
-<!-- Scroll Progress -->
 <div class="scroll-progress" id="scrollProgress"></div>
 
-<!-- App Loader -->
 <div class="app-loader" id="appLoader">
   <div class="loader-logo">
     <span class="loader-text">CINEVAULT</span>
@@ -70,7 +67,7 @@
       Movie You <span class="accent">Love.</span>
     </h1>
     <p class="hero-copy">
-      Search any movie from around the world — Bollywood, Hollywood, Korean, Japanese — and build your personal watchlist. Mark what you want to watch, what you're watching, and what you've loved.
+      Search any movie or web series — Bollywood, Hollywood, Korean, Japanese — and build your personal watchlist. Track episodes, rate, and never lose your place.
     </p>
     <div class="hero-actions">
       <button class="btn btn-primary" id="heroSearchBtn">🔍 Start Searching</button>
@@ -93,12 +90,12 @@
   <!-- SEARCH -->
   <section class="search-area" id="searchArea">
     <div class="search-label">
-      🔍 Search Movies
+      🔍 Search Movies & Series
       <small id="searchSource">Loading...</small>
     </div>
     <div class="search-input-wrap">
       <span class="search-icon">🔍</span>
-      <input type="text" class="search-input" id="searchInput" placeholder="Try: Inception, RRR, Parasite, Oppenheimer, 3 Idiots..." autocomplete="off" spellcheck="false">
+      <input type="text" class="search-input" id="searchInput" placeholder="Try: Loki, RRR, WandaVision, Oppenheimer, Money Heist..." autocomplete="off" spellcheck="false">
       <div class="search-spinner" id="searchSpinner"></div>
     </div>
     <div class="results-drop" id="resultsDrop"></div>
@@ -147,12 +144,14 @@
   <!-- FILTERS -->
   <div class="filters">
     <button class="chip active" data-chip="all">🎬 All</button>
+    <button class="chip" data-chip="movie">🎬 Movies</button>
+    <button class="chip" data-chip="series">📺 Series</button>
     <button class="chip" data-chip="want">🎯 Want</button>
     <button class="chip" data-chip="watching">▶️ Watching</button>
     <button class="chip" data-chip="watched">✅ Watched</button>
     <button class="chip" data-chip="dropped">⏸️ Dropped</button>
     <button class="chip" data-chip="favorites">❤️ Favorites</button>
-    <button class="chip" id="advancedFilterBtn">⚙️ More Filters</button>
+    <button class="chip" id="advancedFilterBtn">⚙️ More</button>
     <div class="sort-wrap">
       <select class="sort-select" id="sortSelect">
         <option value="recent">Sort: Recent</option>
@@ -161,6 +160,7 @@
         <option value="rating">Sort: My Rating</option>
         <option value="tmdb">Sort: TMDB Rating</option>
         <option value="runtime">Sort: Runtime</option>
+        <option value="progress">Sort: Watch Progress</option>
       </select>
     </div>
   </div>
@@ -170,16 +170,15 @@
     <li class="empty">
       <div class="empty-icon">🎬</div>
       <h3>Your vault is empty</h3>
-      <p>Search any movie above and click '+ Add' to start building your collection.</p>
+      <p>Search any movie or series above and click '+ Add' to start building your collection.</p>
     </li>
   </ul>
 
-  <!-- FOOTER -->
   <footer class="footer">
     © 2026 <span class="brand-inline">CINEVAULT</span> — Powered by Shashwat
   </footer>
 
-</div><!-- /wrap -->
+</div>
 
 <!-- MOVIE DETAILS MODAL -->
 <div class="modal" id="movieModal" role="dialog" aria-hidden="true">
@@ -194,9 +193,26 @@
         </div>
       </div>
       <div class="modal-content-col">
-        <h2 class="modal-title" id="mTitle">Movie Title</h2>
+        <h2 class="modal-title" id="mTitle">Title</h2>
         <div class="modal-tags" id="mTags"></div>
         <p class="modal-desc" id="mDesc"></p>
+
+        <!-- SERIES INFO BOX (only for series) -->
+        <div class="series-info-box" id="seriesInfoBox" style="display:none">
+          <div class="series-info-header">
+            <span class="series-info-icon">📺</span>
+            <div class="series-info-text">
+              <strong id="seriesInfoTitle">Web Series</strong>
+              <small id="seriesInfoMeta">0 / 0 episodes watched</small>
+            </div>
+          </div>
+          <div class="series-progress-track">
+            <div class="series-progress-fill" id="seriesInfoProgress"></div>
+          </div>
+          <button class="series-open-btn" id="openEpisodesModal">
+            📺 View & Manage Episodes →
+          </button>
+        </div>
 
         <!-- Star Rating -->
         <div class="star-rating-wrap">
@@ -211,7 +227,6 @@
           <span class="rating-value" id="ratingValue">Not rated</span>
         </div>
 
-        <!-- Status -->
         <div class="modal-statuses">
           <button class="status-pick" data-status="want">🎯 Want</button>
           <button class="status-pick" data-status="watching">▶️ Watching</button>
@@ -219,7 +234,6 @@
           <button class="status-pick" data-status="dropped">⏸️ Dropped</button>
         </div>
 
-        <!-- Actions -->
         <div class="modal-actions">
           <button class="mbtn mbtn-trailer" id="btnTrailer">▶ Trailer</button>
           <button class="mbtn mbtn-watch" id="btnWatch">🎬 Watch</button>
@@ -240,22 +254,13 @@
           </div>
         </div>
 
-        <!-- Episode Tracker (for web series) -->
-        <div class="episodes-section" id="episodesSection" style="display:none">
-          <div class="episodes-header">
-            <label>📺 Episodes</label>
-            <span class="episodes-progress" id="episodesProgress">0 / 0 (0%)</span>
-          </div>
-          <div class="episodes-list" id="episodesList"></div>
-        </div>
-
         <!-- Notes -->
         <div class="modal-note">
           <label>My Notes</label>
           <textarea id="mNote" placeholder="Your thoughts, ratings, reminders..."></textarea>
         </div>
 
-        <!-- Similar Movies -->
+        <!-- Similar -->
         <div class="similar-section" id="similarSection" style="display:none">
           <label>💡 You might also like</label>
           <div class="similar-grid" id="similarGrid"></div>
@@ -265,14 +270,66 @@
   </div>
 </div>
 
+<!-- EPISODES FULL MODAL (नया) -->
+<div class="modal episodes-full-modal" id="episodesModal" role="dialog" aria-hidden="true">
+  <div class="episodes-modal-box">
+    <button class="modal-close" id="episodesClose">✕</button>
+    <div class="episodes-modal-header">
+      <div class="episodes-modal-title">
+        <span class="episodes-modal-icon">📺</span>
+        <div>
+          <h2 id="episodesTitle">Series Title</h2>
+          <p id="episodesSubtitle">Season 1 • Web Series</p>
+        </div>
+      </div>
+      <div class="episodes-modal-stats">
+        <div class="ep-stat">
+          <strong id="epWatchedCount">0</strong>
+          <span>Watched</span>
+        </div>
+        <div class="ep-stat">
+          <strong id="epPendingCount">0</strong>
+          <span>Pending</span>
+        </div>
+        <div class="ep-stat">
+          <strong id="epTotalCount">0</strong>
+          <span>Total</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="episodes-modal-progress">
+      <div class="ep-progress-header">
+        <span>Overall Progress</span>
+        <strong id="epProgressPercent">0%</strong>
+      </div>
+      <div class="ep-progress-track">
+        <div class="ep-progress-fill" id="epProgressFill"></div>
+      </div>
+    </div>
+
+    <div class="episodes-modal-actions">
+      <button class="ep-action-btn success" id="markAllWatchedBtn">✅ Mark All Watched</button>
+      <button class="ep-action-btn" id="resetAllEpisodesBtn">🔄 Reset All</button>
+      <button class="ep-action-btn" id="addEpisodesBtn">➕ Add Episodes</button>
+    </div>
+
+    <div class="episodes-modal-list" id="episodesModalList"></div>
+
+    <div class="episodes-modal-footer">
+      <span id="episodesFooterText">Click any episode to toggle watched status</span>
+    </div>
+  </div>
+</div>
+
 <!-- EDIT / ADD MODAL -->
 <div class="modal" id="editModal" role="dialog" aria-hidden="true">
   <div class="modal-box" style="max-width:640px">
     <button class="modal-close" id="editClose">✕</button>
-    <h2 class="modal-title" id="editTitle" style="margin-bottom:20px">Add Movie</h2>
+    <h2 class="modal-title" id="editTitle" style="margin-bottom:20px">Add Item</h2>
     <form id="editForm">
       <div class="form-field">
-        <label>Movie Title *</label>
+        <label>Title *</label>
         <input id="fTitle" required placeholder="e.g. The Godfather">
       </div>
       <div class="form-row">
@@ -283,8 +340,8 @@
         <div class="form-field">
           <label>Type</label>
           <select id="fType">
-            <option value="movie">Movie</option>
-            <option value="series">Web Series</option>
+            <option value="movie">🎬 Movie</option>
+            <option value="series">📺 Web Series</option>
           </select>
         </div>
       </div>
@@ -329,7 +386,7 @@
         </div>
       </div>
       <div class="form-actions">
-        <button type="submit" class="btn btn-primary">💾 Save Movie</button>
+        <button type="submit" class="btn btn-primary">💾 Save</button>
         <button type="button" class="btn" id="editCancel">Cancel</button>
       </div>
     </form>
@@ -391,7 +448,6 @@
   </div>
 </div>
 
-<!-- ADD-TO-COLLECTION MODAL -->
 <div class="modal" id="addToCollectionModal" role="dialog" aria-hidden="true">
   <div class="modal-box" style="max-width:480px">
     <button class="modal-close" id="addToCollectionClose">✕</button>
@@ -411,12 +467,12 @@
       <div class="dash-card">
         <span class="dash-icon">🎬</span>
         <span class="dash-num" id="dashTotalMovies">0</span>
-        <span class="dash-label">Movies</span>
+        <span class="dash-label">Items</span>
       </div>
       <div class="dash-card">
         <span class="dash-icon">⏱️</span>
         <span class="dash-num" id="dashTotalHours">0</span>
-        <span class="dash-label">Hours Watched</span>
+        <span class="dash-label">Hours</span>
       </div>
       <div class="dash-card">
         <span class="dash-icon">⭐</span>
@@ -479,9 +535,7 @@
     <div class="auth-brand" style="margin-bottom:8px">🔗 SHARE</div>
     <h2 class="modal-title" style="font-size:1.6rem;margin-bottom:8px">Share Your Vault</h2>
     <p style="color:var(--text-dim);font-size:.82rem;margin-bottom:18px">Generate a shareable text summary of your watchlist.</p>
-
     <div class="share-preview" id="sharePreview"></div>
-
     <div class="share-actions">
       <button class="btn btn-primary" id="copyShareBtn">📋 Copy Summary</button>
       <button class="btn" id="shareNativeBtn">🔗 Share via Device</button>
@@ -528,19 +582,15 @@
     </div>
 
     <div class="form-actions">
-      <button type="button" class="btn btn-primary" id="applyAdvancedFilter">Apply Filters</button>
-      <button type="button" class="btn" id="clearAdvancedFilter">Clear All</button>
+      <button type="button" class="btn btn-primary" id="applyAdvancedFilter">Apply</button>
+      <button type="button" class="btn" id="clearAdvancedFilter">Clear</button>
     </div>
   </div>
 </div>
 
-<!-- TOAST -->
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-
-<!-- CLOUD STATUS -->
 <div class="cloud-status" id="cloudStatus">☁ Cloud ready</div>
 
-<!-- SCRIPTS -->
 <script src="scripts/config.js"></script>
 <script src="scripts/api.js"></script>
 <script src="scripts/auth.js"></script>
