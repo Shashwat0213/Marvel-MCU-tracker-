@@ -1,0 +1,180 @@
+/* =========================================================
+   CINEVAULT — THEMES
+   6 accent themes + light mode
+========================================================= */
+
+/* ============ ACCENT THEMES ============ */
+
+/* GOLD (default) */
+body[data-accent="gold"]{
+  --primary:#ffb800;
+  --primary-2:#ff8c42;
+  --accent:#a855f7;
+  --accent-2:#ec4899;
+}
+
+/* CYAN */
+body[data-accent="cyan"]{
+  --primary:#06b6d4;
+  --primary-2:#3b82f6;
+  --accent:#8b5cf6;
+  --accent-2:#ec4899;
+}
+
+/* PURPLE */
+body[data-accent="purple"]{
+  --primary:#a855f7;
+  --primary-2:#ec4899;
+  --accent:#f472b6;
+  --accent-2:#fb7185;
+}
+
+/* GREEN */
+body[data-accent="green"]{
+  --primary:#22c55e;
+  --primary-2:#84cc16;
+  --accent:#14b8a6;
+  --accent-2:#06b6d4;
+}
+
+/* RED */
+body[data-accent="red"]{
+  --primary:#ef4444;
+  --primary-2:#f97316;
+  --accent:#f43f5e;
+  --accent-2:#ec4899;
+}
+
+/* PINK */
+body[data-accent="pink"]{
+  --primary:#ec4899;
+  --primary-2:#f472b6;
+  --accent:#a855f7;
+  --accent-2:#8b5cf6;
+}
+
+/* ============ SWATCH COLORS ============ */
+.swatch[data-accent="gold"]{background:linear-gradient(135deg,#ffb800,#ff8c42);}
+.swatch[data-accent="cyan"]{background:linear-gradient(135deg,#06b6d4,#3b82f6);}
+.swatch[data-accent="purple"]{background:linear-gradient(135deg,#a855f7,#ec4899);}
+.swatch[data-accent="green"]{background:linear-gradient(135deg,#22c55e,#84cc16);}
+.swatch[data-accent="red"]{background:linear-gradient(135deg,#ef4444,#f97316);}
+.swatch[data-accent="pink"]{background:linear-gradient(135deg,#ec4899,#f472b6);}
+
+/* ============ LIGHT MODE ============ */
+body.light{
+  --bg:#f5f3fb;
+  --bg-2:#ffffff;
+  --surface:#ffffff;
+  --surface-2:#f9f7ff;
+  --border:rgba(0,0,0,.08);
+  --border-hover:rgba(0,0,0,.18);
+  --text:#0f0824;
+  --text-dim:#5a5070;
+  --text-mute:#8f85ab;
+}
+
+/* Light mode specific overrides */
+body.light .brand-name,
+body.light .hero-title,
+body.light .modal-title,
+body.light .empty h3,
+body.light .auth-card h2{
+  color:var(--text);
+}
+
+body.light .movie-poster::after{
+  background:linear-gradient(to top, rgba(255,255,255,.9) 0%, transparent 50%);
+}
+
+body.light .badge-status{
+  background:rgba(255,255,255,.9);
+  border-color:color-mix(in srgb, var(--primary) 50%, transparent);
+}
+
+body.light .btn-fav{
+  background:rgba(255,255,255,.85);
+  color:#0f0824;
+  border-color:rgba(0,0,0,.1);
+}
+
+body.light .btn-fav:hover{
+  background:var(--danger);
+  color:#fff;
+}
+
+body.light .modal-close,
+body.light .poster-action{
+  background:rgba(255,255,255,.9);
+  color:#0f0824;
+  border-color:rgba(0,0,0,.1);
+}
+
+body.light .toast{
+  box-shadow:0 12px 40px rgba(0,0,0,.2);
+}
+
+body.light .cloud-status{
+  background:rgba(255,255,255,.95);
+  color:#0f0824;
+}
+
+body.light .auth-overlay,
+body.light .modal{
+  background:rgba(245,243,251,.9);
+}
+
+/* ============ THEME TRANSITIONS ============ */
+body,
+body *{
+  transition-property:background-color, border-color, color, box-shadow;
+  transition-duration:.3s;
+  transition-timing-function:cubic-bezier(.4,0,.2,1);
+}
+
+/* Don't transition transforms/opacity */
+.movie,
+.movie-poster img,
+.btn,
+.chip,
+.stat,
+.hero,
+.modal-box,
+.mbtn,
+.status-pick{
+  transition-property:transform, background-color, border-color, color, box-shadow, opacity;
+}
+
+/* ============ ACCENT-BASED GRADIENTS ============ */
+body[data-accent="gold"] .brand-name{
+  background:linear-gradient(135deg,#ffb800 0%,#a855f7 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+body[data-accent="cyan"] .brand-name{
+  background:linear-gradient(135deg,#06b6d4 0%,#8b5cf6 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+body[data-accent="purple"] .brand-name{
+  background:linear-gradient(135deg,#a855f7 0%,#f472b6 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+body[data-accent="green"] .brand-name{
+  background:linear-gradient(135deg,#22c55e 0%,#14b8a6 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+body[data-accent="red"] .brand-name{
+  background:linear-gradient(135deg,#ef4444 0%,#f43f5e 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+body[data-accent="pink"] .brand-name{
+  background:linear-gradient(135deg,#ec4899 0%,#a855f7 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+
+/* ============ SCROLLBAR (theme-aware) ============ */
+body[data-accent="gold"] ::-webkit-scrollbar-thumb{background:rgba(255,184,0,.4);}
+body[data-accent="cyan"] ::-webkit-scrollbar-thumb{background:rgba(6,182,212,.4);}
+body[data-accent="purple"] ::-webkit-scrollbar-thumb{background:rgba(168,85,247,.4);}
+body[data-accent="green"] ::-webkit-scrollbar-thumb{background:rgba(34,197,94,.4);}
+body[data-accent="red"] ::-webkit-scrollbar-thumb{background:rgba(239,68,68,.4);}
+body[data-accent="pink"] ::-webkit-scrollbar-thumb{background:rgba(236,72,153,.4);}
