@@ -1,6 +1,6 @@
 /* =========================================================
    CINEVAULT — ANIMATIONS
-   All motion, transitions, and effects
+   Phase 1: Enhanced with episode & series animations
 ========================================================= */
 
 /* ============ 1. CARD ENTRANCE ============ */
@@ -31,6 +31,12 @@
 }
 .modal.on .modal-box{animation:modalSlide .4s cubic-bezier(.4,0,.2,1);}
 .auth-overlay.open .auth-card{animation:modalSlide .4s cubic-bezier(.4,0,.2,1);}
+.episodes-full-modal.on .episodes-modal-box{animation:episodesModalIn .5s cubic-bezier(.16,1,.3,1);}
+
+@keyframes episodesModalIn{
+  from{opacity:0;transform:translateY(60px) scale(.9);}
+  to{opacity:1;transform:translateY(0) scale(1);}
+}
 
 /* ============ 5. HEART PULSE ============ */
 @keyframes heartPulse{
@@ -111,8 +117,8 @@
 .toast.on{animation:toastBounce .5s cubic-bezier(.4,0,.2,1);}
 
 /* ============ 14. BUTTON ACTIVE ============ */
-.btn,.chip,.mbtn,.status-pick,.poster-action{will-change:transform;}
-.btn:active,.chip:active,.mbtn:active,.status-pick:active{transform:scale(.97);}
+.btn,.chip,.mbtn,.status-pick,.poster-action,.ep-action-btn{will-change:transform;}
+.btn:active,.chip:active,.mbtn:active,.status-pick:active,.ep-action-btn:active{transform:scale(.97);}
 
 /* ============ 15. POSTER GLOW ============ */
 @keyframes posterGlow{
@@ -265,12 +271,84 @@
   animation:confettiFall 2.5s linear forwards;
 }
 
-/* ============ 32. PERFORMANCE HINTS ============ */
+/* ============ 32. SERIES BADGE PULSE ============ */
+@keyframes seriesBadgePulse{
+  0%,100%{box-shadow:0 0 0 rgba(168,85,247,.4);}
+  50%{box-shadow:0 0 12px rgba(168,85,247,.7);}
+}
+.badge-type{animation:seriesBadgePulse 2s ease-in-out infinite;}
+
+/* ============ 33. CARD SERIES PROGRESS FILL ============ */
+@keyframes cardProgressFill{
+  from{width:0%;}
+  to{width:var(--target-width, 0%);}
+}
+.card-series-progress .cs-progress-fill{animation:cardProgressFill 1s cubic-bezier(.4,0,.2,1) both;}
+
+/* ============ 34. EPISODE CHECK ANIMATION ============ */
+@keyframes epCheckPop{
+  0%{transform:scale(1);}
+  40%{transform:scale(1.3) rotate(10deg);}
+  70%{transform:scale(.95) rotate(-5deg);}
+  100%{transform:scale(1) rotate(0deg);}
+}
+.ep-checkbox.pop{animation:epCheckPop .5s cubic-bezier(.34,1.56,.64,1);}
+
+/* ============ 35. EPISODE ITEM ENTRANCE ============ */
+@keyframes epItemIn{
+  from{opacity:0;transform:translateX(-15px);}
+  to{opacity:1;transform:translateX(0);}
+}
+.ep-item{animation:epItemIn .35s cubic-bezier(.4,0,.2,1) both;}
+
+/* ============ 36. EPISODE PROGRESS SHIMMER ============ */
+@keyframes epProgressShimmer{
+  0%{background-position:0% 50%;}
+  100%{background-position:200% 50%;}
+}
+.ep-progress-fill{
+  animation:epProgressShimmer 3s ease infinite;
+}
+
+/* ============ 37. SERIES GLOW (info box) ============ */
+@keyframes seriesGlow{
+  0%,100%{opacity:.4;}
+  50%{opacity:1;}
+}
+.series-info-box::before{animation:seriesGlow 3s ease-in-out infinite;}
+
+/* ============ 38. VIEW EPISODES BUTTON PULSE ============ */
+@keyframes viewBtnPulse{
+  0%,100%{transform:scale(1);box-shadow:0 0 0 rgba(168,85,247,.3);}
+  50%{transform:scale(1.02);box-shadow:0 0 20px rgba(168,85,247,.5);}
+}
+.series-open-btn{animation:viewBtnPulse 2.5s ease-in-out infinite;}
+.series-open-btn:hover{animation:none;}
+
+/* ============ 39. FLOATING ICON ============ */
+@keyframes floatIcon{
+  0%,100%{transform:translateY(0) rotate(0deg);}
+  50%{transform:translateY(-4px) rotate(3deg);}
+}
+.episodes-modal-icon{animation:floatIcon 3s ease-in-out infinite;}
+
+/* ============ 40. COMPLETION CELEBRATION ============ */
+@keyframes completeCelebration{
+  0%{transform:scale(1);}
+  25%{transform:scale(1.08) rotate(2deg);}
+  50%{transform:scale(1.04) rotate(-2deg);}
+  75%{transform:scale(1.06) rotate(1deg);}
+  100%{transform:scale(1);}
+}
+.episodes-full-modal.completed .episodes-modal-box{animation:completeCelebration 1s cubic-bezier(.4,0,.2,1) 1;}
+
+/* ============ 41. PERFORMANCE HINTS ============ */
 .movie,
 .movie-poster img,
 .result-item,
 .btn,
-.chip{
+.chip,
+.ep-item{
   backface-visibility:hidden;
   -webkit-backface-visibility:hidden;
   transform:translateZ(0);
@@ -279,7 +357,7 @@
 .movie:hover{will-change:transform,box-shadow;}
 .search-input:focus{will-change:box-shadow,border-color;}
 
-/* ============ 33. REDUCED MOTION ============ */
+/* ============ 42. REDUCED MOTION ============ */
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{
     animation-duration:.01ms !important;
@@ -290,7 +368,10 @@
   .progress-fill,
   .badge-status,
   .cloud-status.on,
-  .hero-eyebrow{
+  .hero-eyebrow,
+  .series-open-btn,
+  .episodes-modal-icon,
+  .ep-progress-fill{
     animation:none !important;
   }
 }
