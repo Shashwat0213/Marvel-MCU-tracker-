@@ -1,0 +1,161 @@
+/* =========================================================
+   CINEVAULT — WATCH PROVIDERS STYLES
+   Where to Watch section UI
+========================================================= */
+
+.watch-providers-section{
+  margin-top:20px;
+  padding:16px;
+  background:var(--surface-2);
+  border-radius:var(--radius-md);
+  border:1px solid var(--border);
+}
+
+.watch-providers-section > label{
+  display:block;
+  font-size:.7rem;
+  letter-spacing:1.5px;
+  text-transform:uppercase;
+  color:var(--primary);
+  font-weight:800;
+  margin-bottom:14px;
+}
+
+.provider-group{
+  margin-bottom:14px;
+}
+
+.provider-group:last-of-type{
+  margin-bottom:8px;
+}
+
+.group-label{
+  display:block;
+  font-size:.72rem;
+  color:var(--text-dim);
+  font-weight:700;
+  margin-bottom:8px;
+}
+
+.provider-chips{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+}
+
+.provider-chip{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  padding:7px 12px;
+  border-radius:999px;
+  font-size:.7rem;
+  font-weight:600;
+  text-decoration:none;
+  border:1px solid var(--border);
+  background:var(--surface);
+  color:var(--text);
+  transition:0.2s;
+  cursor:pointer;
+  white-space:nowrap;
+}
+
+.provider-chip:hover{
+  transform:translateY(-2px);
+  border-color:var(--primary);
+  box-shadow:0 4px 12px rgba(0,0,0,0.2);
+}
+
+/* Streaming (subscription) */
+.provider-chip.stream{
+  border-color:rgba(59,130,246,0.4);
+  background:rgba(59,130,246,0.08);
+}
+
+.provider-chip.stream:hover{
+  background:rgba(59,130,246,0.15);
+  border-color:rgb(59,130,246);
+}
+
+/* Free with ads */
+.provider-chip.free{
+  border-color:rgba(34,197,94,0.4);
+  background:rgba(34,197,94,0.08);
+}
+
+.provider-chip.free:hover{
+  background:rgba(34,197,94,0.15);
+  border-color:rgb(34,197,94);
+}
+
+/* Rent / Buy */
+.provider-chip.rent{
+  border-color:rgba(245,158,11,0.4);
+  background:rgba(245,158,11,0.08);
+}
+
+.provider-chip.rent:hover{
+  background:rgba(245,158,11,0.15);
+  border-color:rgb(245,158,11);
+}
+
+/* Search */
+.provider-chip.search{
+  font-size:.65rem;
+  padding:6px 10px;
+}
+
+/* Note */
+.watch-note{
+  margin-top:12px;
+  padding:10px 12px;
+  background:rgba(255,184,0,0.06);
+  border-left:3px solid var(--primary);
+  border-radius:6px;
+  font-size:.7rem;
+  color:var(--text-dim);
+  line-height:1.5;
+}
+
+/* Loading */
+.watch-loading{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:12px;
+  color:var(--text-dim);
+  font-size:.78rem;
+}
+
+.watch-loading .spinner{
+  width:14px;
+  height:14px;
+  border-width:2px;
+}
+
+/* Empty state */
+.watch-empty{
+  padding:16px 12px;
+  text-align:center;
+  color:var(--text-dim);
+  font-size:.78rem;
+  line-height:1.5;
+}
+
+/* Mobile */
+@media (max-width:700px){
+  .provider-chip{
+    font-size:.65rem;
+    padding:6px 10px;
+  }
+  .provider-chip.search{
+    font-size:.58rem;
+    padding:5px 8px;
+  }
+  .watch-providers-section{
+    padding:12px;
+  }
+  .group-label{
+    font-size:.68rem;
+  }
+}
