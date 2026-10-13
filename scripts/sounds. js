@@ -1,0 +1,244 @@
+/* =========================================================
+   CINEVAULT — SOUNDS MODULE
+   Phase 4: Sound effects for buttons, checkboxes, modals
+========================================================= */
+
+(function () {
+  "use strict";
+
+  const CFG = window.CV_CONFIG;
+  if (!CFG) {
+    console.error("❌ config.js not loaded before sounds.js");
+    return;
+  }
+
+  const $ = function (id) { return document.getElementById(id); };
+
+  /* =========================================================
+     CONFIG
+  ========================================================== */
+  const SOUND_STORAGE_KEY = "cv_sound_enabled";
+
+  // Sound URLs (Google Actions free sounds)
+  const SOUND_URLS = {
+    pop: "https://actions.google.com/sounds/v1/cartoon/pop.ogg",
+    click: "https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg",
+    success: "https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg",
+    complete: "https://actions.google.com/sounds/v1/cartoon/concussive_hit_guitar_boing.ogg",
+    heart: "https://actions.google.com/sounds/v1/cartoon/cartoon_boing.ogg",
+    open: "https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg",
+    error: "https://actions.google.com/sounds/v1/cartoon/concussive_hit_guitar_boing.ogg",
+    check: "https://actions.google.com/sounds/v1/cartoon/pop.ogg",
+    uncheck: "https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg",
+    whoosh: "https://actions.google.com/sounds/v1/science_fiction/creature_whoosh_distant_01.ogg",
+    notify: "https://actions.google.com/sounds/v1/alarms/beep_short.ogg"
+  };
+
+  /* =========================================================
+     STATE
+  ========================================================== */
+  let soundEnabled = true;
+
+  // Audio cache (preload to avoid delay)
+  const audioCache = {};
+
+  // Debounce tracker (avoid too many sounds)
+  let lastPlayTime = 0;
+  const MIN_INTERVAL = 80; // ms
+
+  /* =========================================================
+     LOAD STATE
+  ========================================================== */
+  function loadSoundState() {
+    try {
+      const saved = localStorage.getItem(SOUND_STORAGE_KEY);
+      if (saved === "0") soundEnabled = false;
+      else soundEnabled = true;
+    } catch (e) {
+      soundEnabled = true;
+    }
+  }
+
+  function saveSoundState() {
+    try {
+      localStorage.setItem(SOUND_STORAGE_KEY, soundEnabled ? "1" : "0");
+    } catch (e) {}
+  }
+
+  /* =========================================================
+     PRELOAD SOUNDS
+     Preload popular sounds to avoid delay
+  ========================================================== */
+  function preloadSounds() {
+    ["pop", "click", "success", "heart", "open"].forEach(function (key) {
+      if (!SOUND_URLS[key]) return;
+      try {
+        const audio = new Audio();
+        audio.preload = "auto";
+        audio.src = SOUND_URLS[key];
+        audio.volume = 0.3;
+        audioCache[key] = audio;
+      } catch (e) {}
+    });
+  }
+
+  /* =========================================================
+     PLAY SOUND
+  ========================================================== */
+  function play(name, volume) {
+    if (!soundEnabled) return;
+
+    // Debounce
+    const now = Date.now();
+    if (now - lastPlayTime < MIN_INTERVAL) return;
+    lastPlayTime = now;
+
+    const url = SOUND_URLS[name];
+    if (!url) return;
+
+    try {
+      // Use cached audio if available
+      let audio = audioCache[name];
+
+      if (audio) {
+        audio.currentTime = 0;
+      } else {
+        audio = new Audio(url);
+      }
+
+      audio.volume = volume != null ? volume : 0.3;
+      audio.play().catch(function () {
+        // Silent fail (autoplay blocked, etc.)
+      });
+    } catch (e) {
+      // Silent fail
+    }
+  }
+
+  /* =========================================================
+     TOGGLE SOUND
+  ========================================================== */
+  function toggleSound() {
+    soundEnabled = !soundEnabled;
+    saveSoundState();
+    updateSoundButton();
+
+    if (soundEnabled) {
+      play("success", 0.4);
+      if (window.CV_APP && window.CV_APP.toast) {
+        window.CV_APP.toast("🔊 Sound On");
+      }
+    } else {
+      if (window.CV_APP && window.CV_APP.toast) {
+        window.CV_APP.toast("🔇 Sound Off");
+      }
+    }
+  }
+
+  function updateSoundButton() {
+    const btn = $("soundToggleBtn");
+    if (!btn) return;
+    btn.textContent = soundEnabled ? "🔊" : "🔇";
+    btn.title = soundEnabled ? "Sound On — Click to mute" : "Sound Off — Click to unmute";
+    btn.classList.toggle("off", !soundEnabled);
+  }
+
+  /* =========================================================
+     AUTO-BIND TO ELEMENTS
+     Sound plays automatically for various interactions
+  ========================================================== */
+  function bindAutoSounds() {
+    // Buttons (generic click sound)
+    document.addEventListener("click", function (e) {
+      const btn = e.target.closest("button, .btn, .chip, .mbtn, .status-pick, .genre-chip, .top-btn");
+      if (!btn) return;
+
+      // Skip sound on specific buttons
+      if (btn.id === "soundToggleBtn") return;
+
+      // Determine sound type
+      if (btn.classList.contains("btn-primary") || btn.classList.contains("hero-btn")) {
+        play("success", 0.25);
+      } else if (btn.classList.contains("mbtn-danger") || btn.classList.contains("danger")) {
+        play("error", 0.25);
+      } else if (btn.classList.contains("btn-fav") || btn.classList.contains("favorite-btn")) {
+        play("heart", 0.3);
+      } else if (btn.classList.contains("genre-chip") || btn.classList.contains("chip")) {
+        play("click", 0.2);
+      } else {
+        play("pop", 0.2);
+      }
+    }, true);
+
+    // Checkboxes (episodes, etc.)
+    document.addEventListener("change", function (e) {
+      if (e.target.type === "checkbox") {
+        if (e.target.checked) {
+          play("check", 0.3);
+        } else {
+          play("uncheck", 0.25);
+        }
+      }
+    }, true);
+
+    // Modal open (whoosh)
+    const originalOpenModal = window.CV_APP && window.CV_APP.openModal;
+    if (typeof originalOpenModal === "function") {
+      window.CV_APP.openModal = function () {
+        play("whoosh", 0.2);
+        return originalOpenModal.apply(this, arguments);
+      };
+    }
+
+    // Modal close (subtle click)
+    // (handled by generic button click already)
+  }
+
+  /* =========================================================
+     BIND TOGGLE BUTTON
+  ========================================================== */
+  function bindUI() {
+    const btn = $("soundToggleBtn");
+    if (btn) {
+      btn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        toggleSound();
+      });
+    }
+  }
+
+  /* =========================================================
+     EXPORTS
+  ========================================================== */
+  window.CV_SOUNDS = {
+    play: play,
+    toggle: toggleSound,
+    isEnabled: function () { return soundEnabled; },
+    setEnabled: function (val) {
+      soundEnabled = !!val;
+      saveSoundState();
+      updateSoundButton();
+    }
+  };
+
+  /* =========================================================
+     INIT
+  ========================================================== */
+  function init() {
+    loadSoundState();
+    preloadSounds();
+    bindUI();
+    bindAutoSounds();
+    updateSoundButton();
+
+    console.log("🎬 CineVault Sounds module loaded");
+    console.log("   🔊 Sound:", soundEnabled ? "enabled" : "disabled");
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
+
+})();
