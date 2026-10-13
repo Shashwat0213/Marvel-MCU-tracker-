@@ -1,5 +1,5 @@
 /* =========================================================
-   CINEVAULT — DISCOVERY STYLES
+   CINEVAULT — DISCOVERY STYLES (FIXED)
    Phase 4: Genre Explorer + Trending + Recommendations
 ========================================================= */
 
@@ -122,6 +122,15 @@
 
 .genre-chip.active .genre-chip-count{
   background:rgba(255,255,255,.25);
+}
+
+@keyframes genrePulse{
+  0%{transform:scale(1);}
+  50%{transform:scale(1.05);}
+  100%{transform:scale(1);}
+}
+.genre-chip.just-clicked{
+  animation:genrePulse .4s cubic-bezier(.34,1.56,.64,1);
 }
 
 /* =========================================================
@@ -440,20 +449,7 @@
 }
 
 /* =========================================================
-   4. GENRE SELECTION ANIMATION
-========================================================= */
-@keyframes genrePulse{
-  0%{transform:scale(1);}
-  50%{transform:scale(1.05);}
-  100%{transform:scale(1);}
-}
-
-.genre-chip.just-clicked{
-  animation:genrePulse .4s cubic-bezier(.34,1.56,.64,1);
-}
-
-/* =========================================================
-   5. FILTER INDICATOR WITH GENRE ICON
+   4. ACTIVE FILTER INDICATOR
 ========================================================= */
 .active-filter-indicator{
   position:relative;
@@ -472,16 +468,7 @@
 }
 
 /* =========================================================
-   6. SMOOTH TRANSITIONS
-========================================================= */
-.genre-explorer-section,
-.trending-section,
-.recommendations-section{
-  transition:opacity .4s ease, transform .4s ease;
-}
-
-/* =========================================================
-   7. RESPONSIVE
+   5. RESPONSIVE
 ========================================================= */
 @media (max-width:700px){
   .genre-explorer-section,
@@ -489,29 +476,24 @@
   .recommendations-section{
     padding:14px 16px;
   }
-  
   .genre-explorer-header h2,
   .trending-header h2,
   .recommendations-header h2{
     font-size:1.15rem;
   }
-  
   .genre-chip{
     padding:8px 14px;
     font-size:.7rem;
   }
-  
   .trending-item,
   .recommendation-item{
     width:105px;
   }
-  
   .trending-fire{
     width:22px;
     height:22px;
     font-size:12px;
   }
-  
   .trending-rank{
     font-size:.6rem;
     padding:2px 6px;
@@ -525,39 +507,32 @@
     padding:12px;
     margin-bottom:20px;
   }
-  
   .genre-explorer-header span,
   .trending-header span,
   .recommendations-header span{
     display:none;
   }
-  
   .genre-chip{
     padding:7px 12px;
     font-size:.65rem;
   }
-  
   .genre-chip-count{
     font-size:.55rem;
     padding:1px 6px;
   }
-  
   .trending-item,
   .recommendation-item{
     width:95px;
   }
-  
   .trending-title,
   .recommendation-title{
     font-size:.65rem;
   }
-  
   .recommendation-reason{
     display:none;
   }
 }
 
-/* Reduced motion */
 @media (prefers-reduced-motion:reduce){
   .genre-explorer-section,
   .trending-section,
