@@ -11,6 +11,7 @@
   const API = window.CV_API;
   const AUTH = window.CV_AUTH;
   const VISUALS = window.CV_VISUALS;
+  const DISCOVERY = window.CV_DISCOVERY;
 
   if (!CFG || !state || !API) {
     console.error("❌ config.js / api.js not loaded before app.js");
@@ -123,6 +124,11 @@
       });
     }
 
+    // Apply Discovery genre filter (Phase 4)
+    if (DISCOVERY && DISCOVERY.applyGenreFilter) {
+      list = DISCOVERY.applyGenreFilter(list);
+    }
+
     const af = state.advancedFilters;
     if (af.genre) {
       const g = af.genre.toLowerCase();
@@ -162,10 +168,6 @@
   }
 
   // ⬇️ Part 2 यहीं से शुरू
-
-
-
-
 /* ============ RENDER MOVIES ============ */
 function renderMovies() {
   const list = $("moviesList");
@@ -195,7 +197,6 @@ function renderMovies() {
     li.dataset.id = m.id;
     li.style.animationDelay = (i * 0.03) + "s";
 
-    // Genre class for gradient border
     if (VISUALS && VISUALS.getGenreClass) {
       const genreClass = VISUALS.getGenreClass(m.genre);
       if (genreClass) li.classList.add(genreClass);
@@ -319,6 +320,10 @@ function renderAll() {
   if (VISUALS && VISUALS.renderTopRated) {
     VISUALS.renderTopRated();
   }
+  // Refresh Discovery sections (Phase 4)
+  if (DISCOVERY && DISCOVERY.renderAll) {
+    DISCOVERY.renderAll();
+  }
 }
 
 /* ============ FAVORITE / STATUS ============ */
@@ -422,11 +427,6 @@ async function addMovieFromResult(result) {
 }
 
 // ⬇️ Part 3 यहीं से शुरू
-
-
-
-
-
 /* ============ SEARCH DROPDOWN ============ */
 async function renderDropdown(query) {
   const dd = $("resultsDrop");
@@ -562,32 +562,26 @@ function openModal(id) {
   const noteEl = $("mNote");
   if (noteEl) noteEl.value = m.notes || "";
 
-  // Star rating
   if (window.CV_FEATURES && window.CV_FEATURES.setStars) {
     window.CV_FEATURES.setStars(m.userRating || 0);
   }
 
-  // Similar
   if (window.CV_FEATURES && window.CV_FEATURES.loadSimilar) {
     window.CV_FEATURES.loadSimilar(m.tmdbId);
   }
 
-  // Watch providers
   if (window.CV_WATCH && window.CV_WATCH.renderWatchSection) {
     window.CV_WATCH.renderWatchSection(m);
   }
 
-  // Series info box
   if (window.CV_EPISODES && window.CV_EPISODES.renderSeriesInfoBox) {
     window.CV_EPISODES.renderSeriesInfoBox(m);
   }
 
-  // Reviews section
   if (window.CV_REVIEWS && window.CV_REVIEWS.renderReviews) {
     window.CV_REVIEWS.renderReviews(m);
   }
 
-  // ⬇️ NEW: Backdrop image (Phase 3)
   if (VISUALS && VISUALS.renderBackdrop) {
     VISUALS.renderBackdrop(m);
   }
@@ -780,14 +774,8 @@ function getVal(id) {
 }
 
 // ⬇️ Part 4 यहीं से शुरू
-
-
-
-
-
 /* ============ BIND EVENTS ============ */
 function bindEvents() {
-  // Search
   const searchInput = $("searchInput");
   if (searchInput) {
     const debouncedSearch = debounce(function (q) { renderDropdown(q); }, CFG.APP_CONFIG.searchDebounce);
@@ -804,7 +792,6 @@ function bindEvents() {
     if (!e.target.closest("#searchArea")) closeDropdown();
   });
 
-  // Dropdown
   const dd = $("resultsDrop");
   if (dd) {
     dd.addEventListener("click", function (e) {
@@ -826,7 +813,6 @@ function bindEvents() {
     });
   }
 
-  // Chips
   document.querySelectorAll(".chip[data-chip]").forEach(function (chip) {
     chip.addEventListener("click", function () {
       document.querySelectorAll(".chip[data-chip]").forEach(function (c) { c.classList.remove("active"); });
@@ -839,7 +825,6 @@ function bindEvents() {
     });
   });
 
-  // Stats
   document.querySelectorAll(".stat").forEach(function (stat) {
     stat.addEventListener("click", function () {
       const f = stat.dataset.filter;
@@ -853,7 +838,6 @@ function bindEvents() {
     });
   });
 
-  // Sort
   const sortSel = $("sortSelect");
   if (sortSel) {
     sortSel.addEventListener("change", function (e) {
@@ -862,25 +846,21 @@ function bindEvents() {
     });
   }
 
-  // Movie modal
   bindClick("modalClose", closeModal);
   const mm = $("movieModal");
   if (mm) {
     mm.addEventListener("click", function (e) { if (e.target === mm) closeModal(); });
   }
 
-  // Status buttons
   document.querySelectorAll(".status-pick").forEach(function (btn) {
     btn.addEventListener("click", function () {
       if (state.modalId) setStatus(state.modalId, btn.dataset.status);
     });
   });
 
-  // Modal actions
   bindClick("btnFav", function () { if (state.modalId) toggleFav(state.modalId); });
   bindClick("btnFavQuick", function (e) { if (state.modalId) toggleFav(state.modalId, e); });
 
-  // ⬇️ NEW: Trailer button opens modal (Phase 3)
   bindClick("btnTrailer", function () {
     if (!state.modalId) return;
     const m = state.vault.find(function (v) { return v.id === state.modalId; });
@@ -916,7 +896,6 @@ function bindEvents() {
   });
   bindClick("btnDelete", handleDelete);
 
-  // Notes
   const noteEl = $("mNote");
   if (noteEl) {
     noteEl.addEventListener("input", debounce(function () {
@@ -928,7 +907,6 @@ function bindEvents() {
     }, 600));
   }
 
-  // Edit modal
   bindClick("editClose", closeEdit);
   bindClick("editCancel", closeEdit);
   const em = $("editModal");
@@ -938,10 +916,8 @@ function bindEvents() {
   const editForm = $("editForm");
   if (editForm) editForm.addEventListener("submit", handleEditSubmit);
 
-  // Manual add
   bindClick("manualBtn", function () { openEdit(null); });
 
-  // Hero buttons
   bindClick("heroSearchBtn", function () {
     const sa = $("searchArea");
     if (sa) sa.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -959,7 +935,6 @@ function bindEvents() {
     toast("🎲 Random pick: " + pick.title);
   });
 
-  // Swatches
   document.querySelectorAll(".swatch").forEach(function (sw) {
     sw.addEventListener("click", function () {
       const accent = sw.dataset.accent;
@@ -970,7 +945,6 @@ function bindEvents() {
     });
   });
 
-  // Light/dark
   bindClick("themeToggle", function () {
     document.body.classList.toggle("light");
     const light = document.body.classList.contains("light");
@@ -979,7 +953,6 @@ function bindEvents() {
     try { localStorage.setItem(KEYS.MODE, light ? "1" : "0"); } catch (e) {}
   });
 
-  // Escape
   document.addEventListener("keydown", function (e) {
     if (e.key === "Escape") {
       const movieModal = $("movieModal");
@@ -1012,7 +985,6 @@ function bindEvents() {
     }
   });
 
-  // Scroll
   window.addEventListener("scroll", updateScrollProgress, { passive: true });
   setupScrollReveal();
   setupHeroParallax();
@@ -1099,10 +1071,6 @@ function setupHeroParallax() {
 }
 
 // ⬇️ Part 5 यहीं से शुरू
-
-
-
-
   /* ============ HIDE LOADER ============ */
   function hideLoader() {
     const loader = $("appLoader");
@@ -1154,6 +1122,11 @@ function setupHeroParallax() {
         window.CV_FEATURES.init();
       }
 
+      // Render discovery sections (Phase 4)
+      if (DISCOVERY && DISCOVERY.renderAll) {
+        setTimeout(function () { DISCOVERY.renderAll(); }, 800);
+      }
+
       console.log("🎬 CineVault ready — " + state.vault.length + " items in vault");
       console.log("   📺 Series:", state.vault.filter(isSeries).length);
       console.log("   🎬 Movies:", state.vault.filter(function (m) { return !isSeries(m); }).length);
@@ -1195,4 +1168,3 @@ function setupHeroParallax() {
   }
 
 })();
-
