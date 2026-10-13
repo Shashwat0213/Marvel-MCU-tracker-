@@ -103,7 +103,6 @@
   function getFiltered() {
     let list = state.vault.slice();
 
-    // Status / favorites filter
     if (state.currentFilter === "favorites") {
       list = list.filter(function (m) { return m.favorite; });
     } else if (state.currentFilter === "movie") {
@@ -114,7 +113,6 @@
       list = list.filter(function (m) { return m.status === state.currentFilter; });
     }
 
-    // Search query
     if (state.currentQuery && state.currentQuery.length >= 2) {
       const q = state.currentQuery.toLowerCase();
       list = list.filter(function (m) {
@@ -124,7 +122,6 @@
       });
     }
 
-    // Advanced filters
     const af = state.advancedFilters;
     if (af.genre) {
       const g = af.genre.toLowerCase();
@@ -145,7 +142,6 @@
       });
     }
 
-    // Sort
     const s = state.currentSort;
     if (s === "recent") list.sort(function (a, b) { return (b.addedAt || 0) - (a.addedAt || 0); });
     else if (s === "title") list.sort(function (a, b) { return a.title.localeCompare(b.title); });
@@ -164,7 +160,7 @@
     return list;
   }
 
-  // ⬇️ Part 2 जारी रहेगा
+  // ⬇️ Part 2 यहीं से शुरू
 /* ============ RENDER MOVIES ============ */
 function renderMovies() {
   const list = $("moviesList");
@@ -197,7 +193,6 @@ function renderMovies() {
     const statusMeta = CFG.STATUS_OPTIONS[m.status] || CFG.STATUS_OPTIONS.want;
     const series = isSeries(m);
 
-    // Card HTML
     let html = '';
     html += '<div class="movie-poster loading">';
     html +=   '<img src="' + esc(m.poster) + '" alt="' + esc(m.title) + '" loading="lazy">';
@@ -213,7 +208,6 @@ function renderMovies() {
     if (m.userRating) html += '<span class="tag rating">🌟 ' + m.userRating + '</span>';
     html +=   '</div>';
 
-    // Series progress bar
     if (series) {
       const watched = window.CV_EPISODES ? window.CV_EPISODES.getWatchedCount(m) : 0;
       const total = window.CV_EPISODES ? window.CV_EPISODES.getTotalEpisodes(m) : (m.totalEpisodes || 0);
@@ -233,7 +227,6 @@ function renderMovies() {
 
     li.innerHTML = html;
 
-    // Poster fallback + loaded class
     const img = li.querySelector("img");
     if (img) {
       imgFallback(img, m.title);
@@ -249,13 +242,11 @@ function renderMovies() {
       }
     }
 
-    // Click → open modal
     li.addEventListener("click", function (e) {
       if (e.target.closest("button")) return;
       openModal(m.id);
     });
 
-    // Favorite button
     const favBtn = li.querySelector("[data-fav]");
     if (favBtn) {
       favBtn.addEventListener("click", function (e) {
@@ -385,7 +376,7 @@ function syncModalStatus() {
   });
 }
 
-/* ============ ADD MOVIE / SERIES ============ */
+/* ============ ADD MOVIE ============ */
 async function addMovieFromResult(result) {
   if (!result) return;
 
@@ -415,7 +406,7 @@ async function addMovieFromResult(result) {
   if (AUTH && AUTH.scheduleCloudSave) AUTH.scheduleCloudSave();
 }
 
-// ⬇️ Part 3 जारी रहेगा
+// ⬇️ Part 3 यहीं से शुरू
 /* ============ SEARCH DROPDOWN ============ */
 async function renderDropdown(query) {
   const dd = $("resultsDrop");
@@ -556,7 +547,7 @@ function openModal(id) {
     window.CV_FEATURES.setStars(m.userRating || 0);
   }
 
-  // Similar movies
+  // Similar
   if (window.CV_FEATURES && window.CV_FEATURES.loadSimilar) {
     window.CV_FEATURES.loadSimilar(m.tmdbId);
   }
@@ -566,9 +557,14 @@ function openModal(id) {
     window.CV_WATCH.renderWatchSection(m);
   }
 
-  // SERIES INFO BOX (new episode system)
+  // Series info box
   if (window.CV_EPISODES && window.CV_EPISODES.renderSeriesInfoBox) {
     window.CV_EPISODES.renderSeriesInfoBox(m);
+  }
+
+  // Reviews section (Phase 2)
+  if (window.CV_REVIEWS && window.CV_REVIEWS.renderReviews) {
+    window.CV_REVIEWS.renderReviews(m);
   }
 
   const modal = $("movieModal");
@@ -696,7 +692,6 @@ function handleEditSubmit(event) {
       m.runtime = payload.runtime || m.runtime;
       if (payload.totalEpisodes) m.totalEpisodes = payload.totalEpisodes;
 
-      // Initialize episodes if series & none exist
       if (m.type === "series" && (!m.episodes || m.episodes.length === 0)) {
         const total = m.totalEpisodes || 6;
         m.episodes = [];
@@ -732,7 +727,8 @@ function handleEditSubmit(event) {
       favorite: false,
       addedAt: Date.now(),
       watchedAt: null,
-      episodes: []
+      episodes: [],
+      reviews: []
     };
 
     if (payload.type === "series") {
@@ -758,7 +754,7 @@ function getVal(id) {
   return el ? (el.value || "") : "";
 }
 
-// ⬇️ Part 4 जारी रहेगा
+// ⬇️ Part 4 यहीं से शुरू
 /* ============ BIND EVENTS ============ */
 function bindEvents() {
   // Search input
@@ -800,7 +796,7 @@ function bindEvents() {
     });
   }
 
-  // Chips (filters)
+  // Chips
   document.querySelectorAll(".chip[data-chip]").forEach(function (chip) {
     chip.addEventListener("click", function () {
       document.querySelectorAll(".chip[data-chip]").forEach(function (c) { c.classList.remove("active"); });
@@ -850,7 +846,7 @@ function bindEvents() {
     });
   });
 
-  // Modal action buttons
+  // Modal actions
   bindClick("btnFav", function () { if (state.modalId) toggleFav(state.modalId); });
   bindClick("btnFavQuick", function (e) { if (state.modalId) toggleFav(state.modalId, e); });
   bindClick("btnTrailer", function () { openMovieLink("trailerUrl"); });
@@ -908,7 +904,7 @@ function bindEvents() {
     toast("🎲 Random pick: " + pick.title);
   });
 
-  // Swatches (accent themes)
+  // Swatches
   document.querySelectorAll(".swatch").forEach(function (sw) {
     sw.addEventListener("click", function () {
       const accent = sw.dataset.accent;
@@ -934,9 +930,14 @@ function bindEvents() {
       const movieModal = $("movieModal");
       const editModal = $("editModal");
       const episodesModal = $("episodesModal");
+      const reviewModal = $("reviewModal");
       const authOverlay = $("authOverlay");
 
-      if (episodesModal && episodesModal.classList.contains("on")) {
+      if (reviewModal && reviewModal.classList.contains("on")) {
+        if (window.CV_REVIEWS && window.CV_REVIEWS.closeReviewModal) {
+          window.CV_REVIEWS.closeReviewModal();
+        }
+      } else if (episodesModal && episodesModal.classList.contains("on")) {
         if (window.CV_EPISODES && window.CV_EPISODES.closeEpisodesModal) {
           window.CV_EPISODES.closeEpisodesModal();
         }
@@ -959,11 +960,7 @@ function bindEvents() {
 
   // Scroll progress
   window.addEventListener("scroll", updateScrollProgress, { passive: true });
-
-  // Scroll reveal
   setupScrollReveal();
-
-  // Hero parallax
   setupHeroParallax();
 }
 
@@ -1047,7 +1044,7 @@ function setupHeroParallax() {
   });
 }
 
-// ⬇️ Part 5 जारी रहेगा (आखिरी भाग)
+// ⬇️ Part 5 यहीं से शुरू
   /* ============ HIDE LOADER ============ */
   function hideLoader() {
     const loader = $("appLoader");
@@ -1067,7 +1064,6 @@ function setupHeroParallax() {
       loadAchievements();
       loadWatchHistory();
 
-      // Restore accent theme
       try {
         const accent = localStorage.getItem(KEYS.THEME) || "gold";
         document.body.dataset.accent = accent;
@@ -1076,7 +1072,6 @@ function setupHeroParallax() {
         });
       } catch (e) {}
 
-      // Restore light mode
       try {
         if (localStorage.getItem(KEYS.MODE) === "1") {
           document.body.classList.add("light");
@@ -1085,7 +1080,6 @@ function setupHeroParallax() {
         }
       } catch (e) {}
 
-      // Search source label
       const srcEl = $("searchSource");
       if (srcEl) {
         srcEl.textContent = CFG.TMDB_READY ? "✓ TMDB (Movies + TV)" : "iTunes Free Search";
@@ -1095,18 +1089,16 @@ function setupHeroParallax() {
       bindEvents();
       hideLoader();
 
-      // Initialize Firebase auth
       if (AUTH && AUTH.bindUI) AUTH.bindUI();
       if (AUTH && AUTH.init) AUTH.init();
 
-      // Initialize features (star rating, collections, stats, etc.)
       if (window.CV_FEATURES && window.CV_FEATURES.init) {
         window.CV_FEATURES.init();
       }
 
       console.log("🎬 CineVault ready — " + state.vault.length + " items in vault");
-      console.log("   📺 Series support:", state.vault.filter(isSeries).length, "series");
-      console.log("   🎬 Movies:", state.vault.filter(function (m) { return !isSeries(m); }).length, "movies");
+      console.log("   📺 Series:", state.vault.filter(isSeries).length);
+      console.log("   🎬 Movies:", state.vault.filter(function (m) { return !isSeries(m); }).length);
     } catch (err) {
       console.error("❌ Init failed:", err);
       hideLoader();
@@ -1115,25 +1107,18 @@ function setupHeroParallax() {
 
   /* ============ EXPORTS ============ */
   window.CV_APP = {
-    // Utilities
     esc: esc,
     toast: toast,
     isSeries: isSeries,
-
-    // Render
     renderAll: renderAll,
     renderMovies: renderMovies,
     updateStats: updateStats,
-
-    // Storage
     saveVault: saveVault,
     loadVault: loadVault,
     saveCollections: saveCollections,
     loadCollections: loadCollections,
     saveAchievements: saveAchievements,
     saveWatchHistory: saveWatchHistory,
-
-    // Actions
     addMovieFromResult: addMovieFromResult,
     openModal: openModal,
     closeModal: closeModal,
@@ -1141,15 +1126,10 @@ function setupHeroParallax() {
     closeEdit: closeEdit,
     toggleFav: toggleFav,
     setStatus: setStatus,
-
-    // Data
     getFiltered: getFiltered,
-
-    // Lifecycle
     init: init
   };
 
-  // Auto-init
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", init);
   } else {
