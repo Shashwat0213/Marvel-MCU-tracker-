@@ -6,21 +6,6 @@
 <meta name="theme-color" content="#08060f">
 <title>CineVault — Track Every Movie You Love</title>
 
-<!--
-  ═══════════════════════════════════════════════════════════
-  CINEVAULT — QUICK REFERENCE
-  See blueprint.html (local) for full details
-  
-  ✅ Phase 1: Episode System (DONE)
-  ⏳ Phase 2: Reviews Section (CURRENT)
-  ⏳ Phase 3: Visual Enhancements
-  ⏳ Phase 4: Discovery Features
-  ⏳ Phase 5: Advanced Tools
-  ⏳ Phase 6: Pro Features
-  ⏳ Phase 7: Custom Features
-  ═══════════════════════════════════════════════════════════
--->
-
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -31,6 +16,7 @@
 <link rel="stylesheet" href="styles/watch.css">
 <link rel="stylesheet" href="styles/episodes.css">
 <link rel="stylesheet" href="styles/reviews.css">
+<link rel="stylesheet" href="styles/visuals.css">
 </head>
 <body data-accent="gold">
 
@@ -54,6 +40,7 @@
       <button class="btn btn-icon" id="statsBtn" title="Statistics">📊</button>
       <button class="btn btn-icon" id="achievementsBtn" title="Achievements">🏆</button>
       <button class="btn btn-icon" id="calendarBtn" title="Calendar">📅</button>
+      <button class="btn btn-icon" id="wallViewBtn" title="Toggle Wall View">🌌</button>
       <button class="btn btn-icon" id="themeToggle" title="Light/Dark">🌙</button>
       <button class="btn" id="manualBtn">➕ Add Manually</button>
     </div>
@@ -80,7 +67,7 @@
       Movie You <span class="accent">Love.</span>
     </h1>
     <p class="hero-copy">
-      Search any movie or web series, build your personal watchlist, write reviews, and never lose your place with episode-by-episode tracking.
+      Search any movie or web series, build your personal watchlist, write reviews, track episodes, and never lose your place.
     </p>
     <div class="hero-actions">
       <button class="btn btn-primary" id="heroSearchBtn">🔍 Start Searching</button>
@@ -110,6 +97,15 @@
       <div class="search-spinner" id="searchSpinner"></div>
     </div>
     <div class="results-drop" id="resultsDrop"></div>
+  </section>
+
+  <!-- TOP RATED SECTION (Phase 3) -->
+  <section class="top-rated-section" id="topRatedSection" style="display:none">
+    <div class="top-rated-header">
+      <h2>🌟 Top Rated</h2>
+      <span>Your highest-rated favorites</span>
+    </div>
+    <div class="top-rated-scroll" id="topRatedScroll"></div>
   </section>
 
   <section class="stats" id="stats">
@@ -189,7 +185,10 @@
 
 <!-- MOVIE DETAILS MODAL -->
 <div class="modal" id="movieModal" role="dialog" aria-hidden="true">
-  <div class="modal-box">
+  <div class="modal-box movie-modal-box">
+    <!-- BACKDROP IMAGE (Phase 3) -->
+    <div class="modal-backdrop" id="modalBackdrop"></div>
+
     <button class="modal-close" id="modalClose">✕</button>
     <div class="modal-wide">
       <div class="modal-poster-wrap">
@@ -221,7 +220,6 @@
           </button>
         </div>
 
-        <!-- Star Rating -->
         <div class="star-rating-wrap">
           <label>My Rating</label>
           <div class="star-rating" id="starRating" data-rating="0">
@@ -261,7 +259,7 @@
           </div>
         </div>
 
-        <!-- REVIEWS SECTION (Phase 2 - NEW) -->
+        <!-- Reviews Section -->
         <div class="reviews-section" id="reviewsSection">
           <div class="reviews-header">
             <label>💬 My Reviews</label>
@@ -273,18 +271,45 @@
           <div class="reviews-list" id="reviewsList"></div>
         </div>
 
-        <!-- Notes -->
         <div class="modal-note">
           <label>Quick Note</label>
           <textarea id="mNote" placeholder="Short reminder..."></textarea>
         </div>
 
-        <!-- Similar -->
         <div class="similar-section" id="similarSection" style="display:none">
           <label>💡 You might also like</label>
           <div class="similar-grid" id="similarGrid"></div>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- TRAILER EMBED MODAL (Phase 3) -->
+<div class="modal trailer-modal" id="trailerModal" role="dialog" aria-hidden="true">
+  <div class="trailer-modal-box">
+    <button class="modal-close" id="trailerClose">✕</button>
+    <div class="trailer-modal-header">
+      <div class="trailer-modal-icon">▶️</div>
+      <div>
+        <h2 id="trailerTitle">Trailer</h2>
+        <p id="trailerSubtitle">Official Trailer</p>
+      </div>
+    </div>
+    <div class="trailer-embed-wrap">
+      <div class="trailer-embed-placeholder" id="trailerPlaceholder">
+        <div class="trailer-spinner"></div>
+        <span>Loading trailer...</span>
+      </div>
+      <iframe
+        id="trailerIframe"
+        class="trailer-iframe"
+        src=""
+        frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen
+        style="display:none"
+      ></iframe>
     </div>
   </div>
 </div>
@@ -328,7 +353,7 @@
   </div>
 </div>
 
-<!-- REVIEW MODAL (Phase 2 - NEW) -->
+<!-- REVIEW MODAL -->
 <div class="modal review-modal" id="reviewModal" role="dialog" aria-hidden="true">
   <div class="review-modal-box">
     <button class="modal-close" id="reviewClose">✕</button>
@@ -608,6 +633,7 @@
 <script src="scripts/app.js"></script>
 <script src="scripts/episodes.js"></script>
 <script src="scripts/reviews.js"></script>
+<script src="scripts/visuals.js"></script>
 <script src="scripts/features.js"></script>
 </body>
 </html>
