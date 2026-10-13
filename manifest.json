@@ -1,0 +1,69 @@
+{
+  "name": "CineVault — Track Every Movie You Love",
+  "short_name": "CineVault",
+  "description": "Your personal movie universe — watchlist, reviews, episode tracker, and more.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#08060f",
+  "theme_color": "#08060f",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["entertainment", "lifestyle", "productivity"],
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='32' fill='%2308060f'/%3E%3Ctext x='96' y='120' font-size='100' text-anchor='middle' fill='%23ffb800' font-family='Arial' font-weight='bold'%3E%F0%9F%8E%AC%3C/text%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='96' fill='%2308060f'/%3E%3Ctext x='256' y='320' font-size='280' text-anchor='middle' fill='%23ffb800' font-family='Arial' font-weight='bold'%3E%F0%9F%8E%AC%3C/text%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='32' fill='%2308060f'/%3E%3Ctext x='96' y='120' font-size='100' text-anchor='middle' fill='%23ffb800' font-family='Arial' font-weight='bold'%3E%F0%9F%8E%AC%3C/text%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='96' fill='%2308060f'/%3E%3Ctext x='256' y='320' font-size='280' text-anchor='middle' fill='%23ffb800' font-family='Arial' font-weight='bold'%3E%F0%9F%8E%AC%3C/text%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Search Movies",
+      "short_name": "Search",
+      "description": "Search movies and series",
+      "url": "./index.html#search",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'%3E%3Crect width='96' height='96' rx='16' fill='%2308060f'/%3E%3Ctext x='48' y='64' font-size='52' text-anchor='middle' fill='%23ffb800' font-family='Arial'%3E%F0%9F%94%8D%3C/text%3E%3C/svg%3E",
+          "sizes": "96x96",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "My Vault",
+      "short_name": "Vault",
+      "description": "View your movie vault",
+      "url": "./index.html#vault",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'%3E%3Crect width='96' height='96' rx='16' fill='%2308060f'/%3E%3Ctext x='48' y='64' font-size='52' text-anchor='middle' fill='%23ffb800' font-family='Arial'%3E%F0%9F%93%8B%3C/text%3E%3C/svg%3E",
+          "sizes": "96x96",
+          "type": "image/svg+xml"
+        }
+      ]
+    }
+  ],
+  "prefer_related_applications": false
+}
