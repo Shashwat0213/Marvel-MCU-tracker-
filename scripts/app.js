@@ -10,6 +10,7 @@
   const state = window.CV;
   const API = window.CV_API;
   const AUTH = window.CV_AUTH;
+  const VISUALS = window.CV_VISUALS;
 
   if (!CFG || !state || !API) {
     console.error("❌ config.js / api.js not loaded before app.js");
@@ -161,6 +162,10 @@
   }
 
   // ⬇️ Part 2 यहीं से शुरू
+
+
+
+
 /* ============ RENDER MOVIES ============ */
 function renderMovies() {
   const list = $("moviesList");
@@ -189,6 +194,12 @@ function renderMovies() {
     li.className = "movie";
     li.dataset.id = m.id;
     li.style.animationDelay = (i * 0.03) + "s";
+
+    // Genre class for gradient border
+    if (VISUALS && VISUALS.getGenreClass) {
+      const genreClass = VISUALS.getGenreClass(m.genre);
+      if (genreClass) li.classList.add(genreClass);
+    }
 
     const statusMeta = CFG.STATUS_OPTIONS[m.status] || CFG.STATUS_OPTIONS.want;
     const series = isSeries(m);
@@ -304,6 +315,10 @@ function renderAll() {
   if (window.CV_FEATURES && window.CV_FEATURES.checkAchievements) {
     window.CV_FEATURES.checkAchievements();
   }
+  // Refresh Top Rated (Phase 3)
+  if (VISUALS && VISUALS.renderTopRated) {
+    VISUALS.renderTopRated();
+  }
 }
 
 /* ============ FAVORITE / STATUS ============ */
@@ -407,6 +422,11 @@ async function addMovieFromResult(result) {
 }
 
 // ⬇️ Part 3 यहीं से शुरू
+
+
+
+
+
 /* ============ SEARCH DROPDOWN ============ */
 async function renderDropdown(query) {
   const dd = $("resultsDrop");
@@ -562,9 +582,14 @@ function openModal(id) {
     window.CV_EPISODES.renderSeriesInfoBox(m);
   }
 
-  // Reviews section (Phase 2)
+  // Reviews section
   if (window.CV_REVIEWS && window.CV_REVIEWS.renderReviews) {
     window.CV_REVIEWS.renderReviews(m);
+  }
+
+  // ⬇️ NEW: Backdrop image (Phase 3)
+  if (VISUALS && VISUALS.renderBackdrop) {
+    VISUALS.renderBackdrop(m);
   }
 
   const modal = $("movieModal");
@@ -755,9 +780,14 @@ function getVal(id) {
 }
 
 // ⬇️ Part 4 यहीं से शुरू
+
+
+
+
+
 /* ============ BIND EVENTS ============ */
 function bindEvents() {
-  // Search input
+  // Search
   const searchInput = $("searchInput");
   if (searchInput) {
     const debouncedSearch = debounce(function (q) { renderDropdown(q); }, CFG.APP_CONFIG.searchDebounce);
@@ -774,7 +804,7 @@ function bindEvents() {
     if (!e.target.closest("#searchArea")) closeDropdown();
   });
 
-  // Dropdown clicks
+  // Dropdown
   const dd = $("resultsDrop");
   if (dd) {
     dd.addEventListener("click", function (e) {
@@ -849,8 +879,33 @@ function bindEvents() {
   // Modal actions
   bindClick("btnFav", function () { if (state.modalId) toggleFav(state.modalId); });
   bindClick("btnFavQuick", function (e) { if (state.modalId) toggleFav(state.modalId, e); });
-  bindClick("btnTrailer", function () { openMovieLink("trailerUrl"); });
-  bindClick("btnTrailerQuick", function () { openMovieLink("trailerUrl"); });
+
+  // ⬇️ NEW: Trailer button opens modal (Phase 3)
+  bindClick("btnTrailer", function () {
+    if (!state.modalId) return;
+    const m = state.vault.find(function (v) { return v.id === state.modalId; });
+    if (!m) return;
+    if (m.trailerUrl) {
+      if (VISUALS && VISUALS.openTrailerModal) {
+        VISUALS.openTrailerModal(m);
+      } else {
+        window.open(m.trailerUrl, "_blank", "noopener,noreferrer");
+      }
+    }
+  });
+  bindClick("btnTrailerQuick", function () {
+    if (!state.modalId) return;
+    const m = state.vault.find(function (v) { return v.id === state.modalId; });
+    if (!m) return;
+    if (m.trailerUrl) {
+      if (VISUALS && VISUALS.openTrailerModal) {
+        VISUALS.openTrailerModal(m);
+      } else {
+        window.open(m.trailerUrl, "_blank", "noopener,noreferrer");
+      }
+    }
+  });
+
   bindClick("btnWatch", function () { openMovieLink("watchUrl"); });
   bindClick("btnDownload", function () { openMovieLink("downloadUrl"); });
   bindClick("btnEdit", function () {
@@ -915,7 +970,7 @@ function bindEvents() {
     });
   });
 
-  // Light/dark toggle
+  // Light/dark
   bindClick("themeToggle", function () {
     document.body.classList.toggle("light");
     const light = document.body.classList.contains("light");
@@ -924,23 +979,22 @@ function bindEvents() {
     try { localStorage.setItem(KEYS.MODE, light ? "1" : "0"); } catch (e) {}
   });
 
-  // Escape key
+  // Escape
   document.addEventListener("keydown", function (e) {
     if (e.key === "Escape") {
       const movieModal = $("movieModal");
       const editModal = $("editModal");
       const episodesModal = $("episodesModal");
       const reviewModal = $("reviewModal");
+      const trailerModal = $("trailerModal");
       const authOverlay = $("authOverlay");
 
-      if (reviewModal && reviewModal.classList.contains("on")) {
-        if (window.CV_REVIEWS && window.CV_REVIEWS.closeReviewModal) {
-          window.CV_REVIEWS.closeReviewModal();
-        }
+      if (trailerModal && trailerModal.classList.contains("on")) {
+        if (VISUALS && VISUALS.closeTrailerModal) VISUALS.closeTrailerModal();
+      } else if (reviewModal && reviewModal.classList.contains("on")) {
+        if (window.CV_REVIEWS && window.CV_REVIEWS.closeReviewModal) window.CV_REVIEWS.closeReviewModal();
       } else if (episodesModal && episodesModal.classList.contains("on")) {
-        if (window.CV_EPISODES && window.CV_EPISODES.closeEpisodesModal) {
-          window.CV_EPISODES.closeEpisodesModal();
-        }
+        if (window.CV_EPISODES && window.CV_EPISODES.closeEpisodesModal) window.CV_EPISODES.closeEpisodesModal();
       } else if (movieModal && movieModal.classList.contains("on")) {
         closeModal();
       } else if (editModal && editModal.classList.contains("on")) {
@@ -958,7 +1012,7 @@ function bindEvents() {
     }
   });
 
-  // Scroll progress
+  // Scroll
   window.addEventListener("scroll", updateScrollProgress, { passive: true });
   setupScrollReveal();
   setupHeroParallax();
@@ -1045,6 +1099,10 @@ function setupHeroParallax() {
 }
 
 // ⬇️ Part 5 यहीं से शुरू
+
+
+
+
   /* ============ HIDE LOADER ============ */
   function hideLoader() {
     const loader = $("appLoader");
@@ -1137,3 +1195,4 @@ function setupHeroParallax() {
   }
 
 })();
+
