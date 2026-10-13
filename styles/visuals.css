@@ -1,0 +1,444 @@
+/* =========================================================
+   CINEVAULT — VISUAL ENHANCEMENTS
+   Phase 3: Top Rated, Poster Wall, Genre Gradients
+========================================================= */
+
+/* =========================================================
+   1. TOP RATED SECTION (Homepage)
+========================================================= */
+.top-rated-section{
+  margin-bottom:26px;
+  padding:18px 20px;
+  background:linear-gradient(135deg,
+    color-mix(in srgb, var(--primary) 6%, var(--surface)),
+    color-mix(in srgb, var(--accent) 4%, var(--surface-2)));
+  border:1px solid var(--border);
+  border-radius:var(--radius-xl);
+  position:relative;
+  overflow:hidden;
+}
+
+.top-rated-section::before{
+  content:"";
+  position:absolute;
+  top:-50%;
+  right:-30%;
+  width:200px;
+  height:200px;
+  background:radial-gradient(circle, var(--primary), transparent 60%);
+  opacity:.15;
+  filter:blur(40px);
+  pointer-events:none;
+}
+
+.top-rated-header{
+  display:flex;
+  align-items:baseline;
+  gap:12px;
+  margin-bottom:14px;
+  position:relative;
+  z-index:1;
+  flex-wrap:wrap;
+}
+
+.top-rated-header h2{
+  font-family:"Bebas Neue",sans-serif;
+  font-size:1.4rem;
+  letter-spacing:1px;
+  margin:0;
+  color:var(--primary);
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.top-rated-header span{
+  font-size:.68rem;
+  color:var(--text-mute);
+  font-weight:600;
+  letter-spacing:.5px;
+}
+
+.top-rated-scroll{
+  display:flex;
+  gap:12px;
+  overflow-x:auto;
+  padding:4px 4px 12px;
+  scroll-snap-type:x mandatory;
+  position:relative;
+  z-index:1;
+}
+
+.top-rated-scroll::-webkit-scrollbar{
+  height:6px;
+}
+
+.top-rated-scroll::-webkit-scrollbar-track{
+  background:transparent;
+}
+
+.top-rated-scroll::-webkit-scrollbar-thumb{
+  background:color-mix(in srgb, var(--primary) 40%, transparent);
+  border-radius:20px;
+}
+
+.top-rated-item{
+  flex-shrink:0;
+  width:130px;
+  scroll-snap-align:start;
+  cursor:pointer;
+  transition:transform .3s cubic-bezier(.4,0,.2,1);
+  position:relative;
+}
+
+.top-rated-item:hover{
+  transform:translateY(-6px) scale(1.02);
+}
+
+.top-rated-poster{
+  position:relative;
+  width:100%;
+  aspect-ratio:2/3;
+  border-radius:var(--radius-md);
+  overflow:hidden;
+  border:1px solid var(--border);
+  background:var(--surface-2);
+  box-shadow:0 6px 20px rgba(0,0,0,.3);
+}
+
+.top-rated-poster img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+  transition:transform .4s;
+}
+
+.top-rated-item:hover .top-rated-poster img{
+  transform:scale(1.08);
+}
+
+.top-rated-rank{
+  position:absolute;
+  top:8px;
+  left:8px;
+  width:26px;
+  height:26px;
+  border-radius:50%;
+  background:linear-gradient(135deg, var(--primary), var(--primary-2));
+  color:#0a0614;
+  font-weight:900;
+  font-size:.72rem;
+  display:grid;
+  place-items:center;
+  box-shadow:0 4px 12px rgba(0,0,0,.4);
+  z-index:2;
+  font-family:"Bebas Neue",sans-serif;
+}
+
+.top-rated-rank.gold{
+  background:linear-gradient(135deg, #ffd700, #ffb800);
+}
+
+.top-rated-rank.silver{
+  background:linear-gradient(135deg, #c0c0c0, #a8a8a8);
+}
+
+.top-rated-rank.bronze{
+  background:linear-gradient(135deg, #cd7f32, #a0522d);
+}
+
+.top-rated-stars{
+  position:absolute;
+  bottom:8px;
+  left:8px;
+  right:8px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:2px;
+  padding:4px 6px;
+  background:rgba(0,0,0,.75);
+  backdrop-filter:blur(8px);
+  border-radius:6px;
+  font-size:.68rem;
+  color:#ffd700;
+  z-index:2;
+  font-weight:800;
+}
+
+.top-rated-title{
+  margin-top:8px;
+  font-size:.72rem;
+  font-weight:600;
+  color:var(--text);
+  text-align:center;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  line-height:1.3;
+}
+
+/* =========================================================
+   2. POSTER WALL VIEW
+========================================================= */
+.movies.wall-view{
+  grid-template-columns:repeat(auto-fill, minmax(150px, 1fr));
+  gap:8px;
+}
+
+.movies.wall-view .movie{
+  border-radius:6px;
+  border:0;
+}
+
+.movies.wall-view .movie-body{
+  display:none;
+}
+
+.movies.wall-view .movie-poster{
+  aspect-ratio:2/3;
+}
+
+.movies.wall-view .movie:hover{
+  transform:scale(1.06);
+  border-color:var(--primary);
+  z-index:5;
+}
+
+.movies.wall-view .badge-status,
+.movies.wall-view .badge-type{
+  font-size:.5rem;
+  padding:4px 7px;
+}
+
+.movies.wall-view .btn-fav{
+  width:30px;
+  height:30px;
+  font-size:13px;
+}
+
+/* =========================================================
+   3. GENRE GRADIENT BORDERS
+========================================================= */
+.movie.genre-action{--genre-color:#ef4444;}
+.movie.genre-comedy{--genre-color:#fbbf24;}
+.movie.genre-horror{--genre-color:#7c3aed;}
+.movie.genre-romance{--genre-color:#ec4899;}
+.movie.genre-scifi{--genre-color:#06b6d4;}
+.movie.genre-drama{--genre-color:#3b82f6;}
+.movie.genre-thriller{--genre-color:#dc2626;}
+.movie.genre-animation{--genre-color:#f97316;}
+.movie.genre-fantasy{--genre-color:#a855f7;}
+.movie.genre-mystery{--genre-color:#6366f1;}
+.movie.genre-crime{--genre-color:#991b1b;}
+.movie.genre-adventure{--genre-color:#22c55e;}
+
+.movie[class*="genre-"]{
+  position:relative;
+}
+
+.movie[class*="genre-"]::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:var(--radius-lg);
+  padding:2px;
+  background:linear-gradient(135deg, var(--genre-color, var(--primary)), transparent);
+  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;
+  mask-composite:exclude;
+  opacity:.6;
+  pointer-events:none;
+  transition:opacity .3s;
+  z-index:3;
+}
+
+.movie[class*="genre-"]:hover::before{
+  opacity:1;
+}
+
+/* =========================================================
+   4. BETTER SKELETON LOADER
+========================================================= */
+@keyframes skeletonWave{
+  0%{background-position:-200% 0;}
+  100%{background-position:200% 0;}
+}
+
+.skeleton-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius-lg);
+  overflow:hidden;
+  position:relative;
+}
+
+.skeleton-card .sk-poster{
+  aspect-ratio:2/3;
+  background:linear-gradient(90deg,
+    var(--surface-2) 0%,
+    color-mix(in srgb, var(--surface-2) 60%, var(--surface)) 50%,
+    var(--surface-2) 100%);
+  background-size:200% 100%;
+  animation:skeletonWave 1.5s ease-in-out infinite;
+}
+
+.skeleton-card .sk-line{
+  height:12px;
+  margin:10px 14px;
+  border-radius:6px;
+  background:linear-gradient(90deg,
+    var(--surface-2) 0%,
+    color-mix(in srgb, var(--surface-2) 60%, var(--surface)) 50%,
+    var(--surface-2) 100%);
+  background-size:200% 100%;
+  animation:skeletonWave 1.5s ease-in-out infinite;
+}
+
+.skeleton-card .sk-line.short{
+  width:60%;
+}
+
+/* =========================================================
+   5. BACKDROP FADE ANIMATION
+========================================================= */
+@keyframes backdropFadeIn{
+  from{opacity:0;transform:scale(1.05);}
+  to{opacity:.18;transform:scale(1);}
+}
+
+.modal-backdrop{
+  animation:backdropFadeIn .8s cubic-bezier(.4,0,.2,1);
+}
+
+/* =========================================================
+   6. POSTER SHINE EFFECT
+========================================================= */
+.movie-poster::before{
+  content:"";
+  position:absolute;
+  top:0;
+  left:-100%;
+  width:60%;
+  height:100%;
+  background:linear-gradient(
+    90deg,
+    transparent,
+    rgba(255,255,255,.15),
+    transparent
+  );
+  transform:skewX(-20deg);
+  transition:left .7s cubic-bezier(.4,0,.2,1);
+  z-index:2;
+  pointer-events:none;
+}
+
+.movie:hover .movie-poster::before{
+  left:150%;
+}
+
+/* =========================================================
+   7. FLOATING GRADIENT ORBS
+========================================================= */
+.movie::after{
+  content:"";
+  position:absolute;
+  bottom:-40px;
+  right:-40px;
+  width:80px;
+  height:80px;
+  border-radius:50%;
+  background:radial-gradient(circle, var(--primary), transparent 70%);
+  opacity:0;
+  transition:opacity .4s;
+  pointer-events:none;
+  filter:blur(20px);
+  z-index:1;
+}
+
+.movie:hover::after{
+  opacity:.4;
+}
+
+/* =========================================================
+   8. TOP RATED HEADER SPARKLE
+========================================================= */
+@keyframes sparkle{
+  0%, 100%{opacity:0; transform:scale(.5) rotate(0deg);}
+  50%{opacity:1; transform:scale(1) rotate(180deg);}
+}
+
+.top-rated-header h2::after{
+  content:"✨";
+  font-size:.9rem;
+  margin-left:4px;
+  animation:sparkle 2s ease-in-out infinite;
+}
+
+/* =========================================================
+   9. WALL VIEW TOGGLE BUTTON ACTIVE STATE
+========================================================= */
+#wallViewBtn.active{
+  background:linear-gradient(135deg, var(--primary), var(--primary-2));
+  color:#0a0614;
+  border-color:transparent;
+}
+
+/* =========================================================
+   10. BACKDROP ANIMATIONS
+========================================================= */
+@keyframes backdropZoom{
+  0%, 100%{transform:scale(1);}
+  50%{transform:scale(1.03);}
+}
+
+.modal-backdrop{
+  animation:backdropFadeIn .8s cubic-bezier(.4,0,.2,1),
+            backdropZoom 20s ease-in-out infinite;
+}
+
+/* =========================================================
+   11. RESPONSIVE
+========================================================= */
+@media (max-width:700px){
+  .top-rated-section{padding:14px 16px;}
+  .top-rated-header h2{font-size:1.15rem;}
+  .top-rated-item{width:110px;}
+  .top-rated-rank{width:22px;height:22px;font-size:.62rem;}
+  .top-rated-stars{font-size:.58rem;padding:3px 5px;}
+  .top-rated-title{font-size:.65rem;}
+  
+  .movies.wall-view{
+    grid-template-columns:repeat(3, 1fr);
+    gap:6px;
+  }
+  
+  .movies.wall-view .btn-fav{
+    width:26px;
+    height:26px;
+    font-size:11px;
+  }
+}
+
+@media (max-width:420px){
+  .top-rated-item{width:95px;}
+  .top-rated-header{gap:8px;}
+  .top-rated-header h2{font-size:1rem;}
+  .top-rated-header span{display:none;}
+  .top-rated-rank{width:20px;height:20px;font-size:.55rem;}
+  
+  .movies.wall-view{
+    grid-template-columns:repeat(3, 1fr);
+    gap:5px;
+  }
+}
+
+@media (prefers-reduced-motion:reduce){
+  .movie-poster::before,
+  .top-rated-header h2::after,
+  .modal-backdrop{
+    animation:none !important;
+    transition:none !important;
+  }
+}
