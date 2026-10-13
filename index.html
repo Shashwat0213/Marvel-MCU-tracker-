@@ -4,7 +4,23 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#08060f">
+<meta name="description" content="CineVault — Track every movie you love. Personal watchlist, reviews, episode tracker and more.">
 <title>CineVault — Track Every Movie You Love</title>
+
+<!--
+  ═══════════════════════════════════════════════════════════
+  CINEVAULT — MASTER FILE
+  All phases integrated:
+  
+  ✅ Phase 1: Episode System
+  ✅ Phase 2: Reviews Section
+  ✅ Phase 3: Visual Enhancements
+  ✅ Phase 4: Discovery Features
+  ⏳ Phase 5: Advanced Tools (JS fills sections)
+  ⏳ Phase 6: Pro Features (JS fills sections)
+  ⏳ Phase 7: Custom (JS fills sections)
+  ═══════════════════════════════════════════════════════════
+-->
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,6 +34,9 @@
 <link rel="stylesheet" href="styles/reviews.css">
 <link rel="stylesheet" href="styles/visuals.css">
 <link rel="stylesheet" href="styles/discovery.css">
+<link rel="stylesheet" href="styles/advanced.css">
+<link rel="stylesheet" href="styles/pro.css">
+<link rel="stylesheet" href="styles/custom.css">
 </head>
 <body data-accent="gold">
 
@@ -32,6 +51,7 @@
 
 <div class="wrap">
 
+  <!-- TOP BAR -->
   <header class="top-bar">
     <div class="brand">
       <div class="brand-name">🎬 CineVault</div>
@@ -42,12 +62,14 @@
       <button class="btn btn-icon" id="statsBtn" title="Statistics">📊</button>
       <button class="btn btn-icon" id="achievementsBtn" title="Achievements">🏆</button>
       <button class="btn btn-icon" id="calendarBtn" title="Calendar">📅</button>
+      <button class="btn btn-icon" id="goalsBtn" title="Watch Goals">🎯</button>
       <button class="btn btn-icon" id="wallViewBtn" title="Toggle Wall View">🌌</button>
       <button class="btn btn-icon" id="themeToggle" title="Light/Dark">🌙</button>
       <button class="btn" id="manualBtn">➕ Add Manually</button>
     </div>
   </header>
 
+  <!-- AUTH BAR -->
   <div class="auth-bar">
     <div class="auth-user" id="authUserBox">
       <span class="auth-avatar" id="authAvatar">U</span>
@@ -57,11 +79,13 @@
       </div>
       <button class="btn btn-sm" id="shareBtn" title="Share vault">🔗</button>
       <button class="btn btn-sm" id="exportBtn" title="Export data">⬇</button>
+      <button class="btn btn-sm" id="importBtn" title="Import data">⬆</button>
       <button class="btn btn-sm" id="authLogoutBtn">Logout</button>
     </div>
     <button class="btn btn-primary" id="authOpenBtn">👤 Login / Sign Up</button>
   </div>
 
+  <!-- HERO -->
   <section class="hero">
     <div class="hero-eyebrow">✨ Smart Movie Tracker</div>
     <h1 class="hero-title">
@@ -69,7 +93,7 @@
       Movie You <span class="accent">Love.</span>
     </h1>
     <p class="hero-copy">
-      Search any movie or web series, build your personal watchlist, write reviews, track episodes, and discover new favorites.
+      Search any movie or web series, build your personal watchlist, write reviews, track episodes, set goals, and discover new favorites.
     </p>
     <div class="hero-actions">
       <button class="btn btn-primary" id="heroSearchBtn">🔍 Start Searching</button>
@@ -78,6 +102,7 @@
     </div>
   </section>
 
+  <!-- THEME PICKER -->
   <section class="theme-picker">
     <span class="theme-picker-label">Theme</span>
     <div class="swatch active" data-accent="gold" title="Cinema Gold"></div>
@@ -88,6 +113,10 @@
     <div class="swatch" data-accent="pink" title="Rose Pink"></div>
   </section>
 
+  <!-- PHASE 7: CUSTOM THEME PICKER (filled by custom.js) -->
+  <section class="custom-theme-picker" id="customThemePicker" style="display:none"></section>
+
+  <!-- SEARCH -->
   <section class="search-area" id="searchArea">
     <div class="search-label">
       🔍 Search Movies & Series
@@ -101,7 +130,13 @@
     <div class="results-drop" id="resultsDrop"></div>
   </section>
 
-  <!-- TOP RATED SECTION (Phase 3) -->
+  <!-- ═══════════════════════════════════════════════════════
+       PHASE 5: RECENTLY WATCHED / CONTINUE WATCHING
+       (filled by advanced.js)
+  ═══════════════════════════════════════════════════════════ -->
+  <section class="continue-watching-section" id="continueWatchingSection" style="display:none"></section>
+
+  <!-- PHASE 3: TOP RATED -->
   <section class="top-rated-section" id="topRatedSection" style="display:none">
     <div class="top-rated-header">
       <h2>🌟 Top Rated</h2>
@@ -110,7 +145,7 @@
     <div class="top-rated-scroll" id="topRatedScroll"></div>
   </section>
 
-  <!-- GENRE EXPLORER SECTION (Phase 4 - NEW) -->
+  <!-- PHASE 4: GENRE EXPLORER -->
   <section class="genre-explorer-section" id="genreExplorerSection" style="display:none">
     <div class="genre-explorer-header">
       <h2>🎭 Explore Genres</h2>
@@ -119,7 +154,7 @@
     <div class="genre-chips-scroll" id="genreChipsScroll"></div>
   </section>
 
-  <!-- TRENDING NOW SECTION (Phase 4 - NEW) -->
+  <!-- PHASE 4: TRENDING NOW -->
   <section class="trending-section" id="trendingSection" style="display:none">
     <div class="trending-header">
       <h2>🔥 Trending Now</h2>
@@ -128,7 +163,7 @@
     <div class="trending-scroll" id="trendingScroll"></div>
   </section>
 
-  <!-- RECOMMENDATIONS SECTION (Phase 4 - NEW) -->
+  <!-- PHASE 4: RECOMMENDATIONS -->
   <section class="recommendations-section" id="recommendationsSection" style="display:none">
     <div class="recommendations-header">
       <h2>💡 For You</h2>
@@ -137,6 +172,13 @@
     <div class="recommendations-scroll" id="recommendationsScroll"></div>
   </section>
 
+  <!-- ═══════════════════════════════════════════════════════
+       PHASE 5: WATCH GOALS
+       (filled by advanced.js)
+  ═══════════════════════════════════════════════════════════ -->
+  <section class="watch-goals-section" id="watchGoalsSection" style="display:none"></section>
+
+  <!-- STATS -->
   <section class="stats" id="stats">
     <div class="stat active" data-filter="all">
       <div class="stat-icon">🎬</div>
@@ -165,6 +207,7 @@
     </div>
   </section>
 
+  <!-- PROGRESS -->
   <div class="progress-bar-wrap">
     <div class="progress-meta">
       <span class="label">🎯 Watch Progress</span>
@@ -175,6 +218,7 @@
     </div>
   </div>
 
+  <!-- FILTERS -->
   <div class="filters">
     <button class="chip active" data-chip="all">🎬 All</button>
     <button class="chip" data-chip="movie">🎬 Movies</button>
@@ -198,12 +242,13 @@
     </div>
   </div>
 
-  <!-- Active genre filter indicator -->
+  <!-- ACTIVE GENRE FILTER INDICATOR -->
   <div class="active-filter-indicator" id="activeGenreFilter" style="display:none">
     <span>Showing: <strong id="activeGenreName">Genre</strong></span>
     <button id="clearGenreFilter">✕ Clear</button>
   </div>
 
+  <!-- MOVIE GRID -->
   <ul class="movies" id="moviesList">
     <li class="empty">
       <div class="empty-icon">🎬</div>
@@ -222,7 +267,6 @@
 <div class="modal" id="movieModal" role="dialog" aria-hidden="true">
   <div class="modal-box movie-modal-box">
     <div class="modal-backdrop" id="modalBackdrop"></div>
-
     <button class="modal-close" id="modalClose">✕</button>
     <div class="modal-wide">
       <div class="modal-poster-wrap">
@@ -237,6 +281,7 @@
         <div class="modal-tags" id="mTags"></div>
         <p class="modal-desc" id="mDesc"></p>
 
+        <!-- SERIES INFO BOX -->
         <div class="series-info-box" id="seriesInfoBox" style="display:none">
           <div class="series-info-header">
             <span class="series-info-icon">📺</span>
@@ -253,6 +298,10 @@
           </button>
         </div>
 
+        <!-- WATCH GOAL PROGRESS (Phase 5, if part of a goal) -->
+        <div class="goal-progress-box" id="goalProgressBox" style="display:none"></div>
+
+        <!-- STAR RATING -->
         <div class="star-rating-wrap">
           <label>My Rating</label>
           <div class="star-rating" id="starRating" data-rating="0">
@@ -265,6 +314,7 @@
           <span class="rating-value" id="ratingValue">Not rated</span>
         </div>
 
+        <!-- STATUS -->
         <div class="modal-statuses">
           <button class="status-pick" data-status="want">🎯 Want</button>
           <button class="status-pick" data-status="watching">▶️ Watching</button>
@@ -272,6 +322,7 @@
           <button class="status-pick" data-status="dropped">⏸️ Dropped</button>
         </div>
 
+        <!-- ACTIONS -->
         <div class="modal-actions">
           <button class="mbtn mbtn-trailer" id="btnTrailer">▶ Trailer</button>
           <button class="mbtn mbtn-watch" id="btnWatch">🎬 Watch</button>
@@ -283,6 +334,7 @@
           <button class="mbtn mbtn-danger" id="btnDelete">🗑 Delete</button>
         </div>
 
+        <!-- WATCH PROVIDERS -->
         <div class="watch-providers-section" id="watchSection">
           <label>📺 Where to Watch</label>
           <div class="watch-loading">
@@ -291,6 +343,7 @@
           </div>
         </div>
 
+        <!-- REVIEWS -->
         <div class="reviews-section" id="reviewsSection">
           <div class="reviews-header">
             <label>💬 My Reviews</label>
@@ -302,11 +355,13 @@
           <div class="reviews-list" id="reviewsList"></div>
         </div>
 
+        <!-- QUICK NOTE -->
         <div class="modal-note">
           <label>Quick Note</label>
           <textarea id="mNote" placeholder="Short reminder..."></textarea>
         </div>
 
+        <!-- SIMILAR -->
         <div class="similar-section" id="similarSection" style="display:none">
           <label>💡 You might also like</label>
           <div class="similar-grid" id="similarGrid"></div>
@@ -316,7 +371,7 @@
   </div>
 </div>
 
-<!-- TRAILER EMBED MODAL -->
+<!-- TRAILER MODAL -->
 <div class="modal trailer-modal" id="trailerModal" role="dialog" aria-hidden="true">
   <div class="trailer-modal-box">
     <button class="modal-close" id="trailerClose">✕</button>
@@ -332,15 +387,7 @@
         <div class="trailer-spinner"></div>
         <span>Loading trailer...</span>
       </div>
-      <iframe
-        id="trailerIframe"
-        class="trailer-iframe"
-        src=""
-        frameborder="0"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-        allowfullscreen
-        style="display:none"
-      ></iframe>
+      <iframe id="trailerIframe" class="trailer-iframe" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="display:none"></iframe>
     </div>
   </div>
 </div>
@@ -395,7 +442,6 @@
         <p id="reviewModalSubtitle">Share your thoughts</p>
       </div>
     </div>
-
     <form id="reviewForm">
       <div class="form-field">
         <label>Your Rating *</label>
@@ -408,20 +454,17 @@
         </div>
         <span class="review-rating-label" id="reviewRatingLabel">Not rated</span>
       </div>
-
       <div class="form-field">
         <label>Your Review *</label>
-        <textarea id="reviewText" rows="5" required placeholder="What did you think? Share your thoughts..." maxlength="2000"></textarea>
+        <textarea id="reviewText" rows="5" required placeholder="What did you think?" maxlength="2000"></textarea>
         <span class="review-char-count" id="reviewCharCount">0 / 2000</span>
       </div>
-
       <div class="form-field">
         <label class="review-spoiler-label">
           <input type="checkbox" id="reviewSpoiler">
           <span>⚠️ Contains Spoilers</span>
         </label>
       </div>
-
       <div class="review-modal-actions">
         <button type="submit" class="btn btn-primary" id="reviewSubmitBtn">💾 Save Review</button>
         <button type="button" class="btn" id="reviewCancelBtn">Cancel</button>
@@ -537,6 +580,7 @@
   </div>
 </div>
 
+<!-- COLLECTIONS MODAL -->
 <div class="modal" id="collectionsModal" role="dialog" aria-hidden="true">
   <div class="modal-box" style="max-width:640px">
     <button class="modal-close" id="collectionsClose">✕</button>
@@ -558,6 +602,7 @@
   </div>
 </div>
 
+<!-- STATS MODAL -->
 <div class="modal" id="statsModal" role="dialog" aria-hidden="true">
   <div class="modal-box" style="max-width:820px">
     <button class="modal-close" id="statsClose">✕</button>
@@ -580,6 +625,7 @@
   </div>
 </div>
 
+<!-- ACHIEVEMENTS MODAL -->
 <div class="modal" id="achievementsModal" role="dialog" aria-hidden="true">
   <div class="modal-box" style="max-width:720px">
     <button class="modal-close" id="achievementsClose">✕</button>
@@ -589,6 +635,7 @@
   </div>
 </div>
 
+<!-- CALENDAR MODAL -->
 <div class="modal" id="calendarModal" role="dialog" aria-hidden="true">
   <div class="modal-box" style="max-width:680px">
     <button class="modal-close" id="calendarClose">✕</button>
@@ -608,12 +655,13 @@
   </div>
 </div>
 
+<!-- SHARE MODAL -->
 <div class="modal" id="shareModal" role="dialog" aria-hidden="true">
   <div class="modal-box" style="max-width:560px">
     <button class="modal-close" id="shareClose">✕</button>
     <div class="auth-brand" style="margin-bottom:8px">🔗 SHARE</div>
     <h2 class="modal-title" style="font-size:1.6rem;margin-bottom:8px">Share Your Vault</h2>
-    <p style="color:var(--text-dim);font-size:.82rem;margin-bottom:18px">Generate a shareable text summary of your watchlist.</p>
+    <p style="color:var(--text-dim);font-size:.82rem;margin-bottom:18px">Generate a shareable text summary.</p>
     <div class="share-preview" id="sharePreview"></div>
     <div class="share-actions">
       <button class="btn btn-primary" id="copyShareBtn">📋 Copy Summary</button>
@@ -622,6 +670,7 @@
   </div>
 </div>
 
+<!-- ADVANCED FILTERS MODAL -->
 <div class="modal" id="advancedFilterModal" role="dialog" aria-hidden="true">
   <div class="modal-box" style="max-width:520px">
     <button class="modal-close" id="advancedFilterClose">✕</button>
@@ -653,9 +702,69 @@
   </div>
 </div>
 
+<!-- ═══════════════════════════════════════════════════════
+     PHASE 5: WATCH GOALS MODAL (filled by advanced.js)
+═══════════════════════════════════════════════════════════ -->
+<div class="modal" id="goalsModal" role="dialog" aria-hidden="true">
+  <div class="modal-box" style="max-width:640px">
+    <button class="modal-close" id="goalsClose">✕</button>
+    <div class="auth-brand" style="margin-bottom:8px">🎯 WATCH GOALS</div>
+    <h2 class="modal-title" style="font-size:1.7rem;margin-bottom:18px">Your Goals</h2>
+    <div id="goalsList" class="goals-list"></div>
+    <div class="goal-create">
+      <input id="newGoalName" placeholder="Goal name (e.g. Watch 50 movies)" maxlength="60">
+      <input id="newGoalTarget" type="number" min="1" max="1000" placeholder="Target #">
+      <button class="btn btn-primary" id="newGoalBtn">+ Add Goal</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     PHASE 5: RELEASE CALENDAR MODAL
+═══════════════════════════════════════════════════════════ -->
+<div class="modal" id="releaseCalendarModal" role="dialog" aria-hidden="true">
+  <div class="modal-box" style="max-width:780px">
+    <button class="modal-close" id="releaseCalendarClose">✕</button>
+    <div class="auth-brand" style="margin-bottom:8px">📅 RELEASE CALENDAR</div>
+    <h2 class="modal-title" style="font-size:1.7rem;margin-bottom:8px">Upcoming Releases</h2>
+    <p style="color:var(--text-dim);font-size:.82rem;margin-bottom:18px">Movies and series releasing soon</p>
+    <div id="releaseCalendarList" class="release-calendar-list"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     PHASE 6: PRO FEATURES MODALS
+═══════════════════════════════════════════════════════════ -->
+
+<!-- Yearly Wrap-Up Modal -->
+<div class="modal" id="wrapUpModal" role="dialog" aria-hidden="true">
+  <div class="modal-box" style="max-width:700px">
+    <button class="modal-close" id="wrapUpClose">✕</button>
+    <div class="wrapup-container" id="wrapUpContainer"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     PHASE 7: CUSTOM MODALS
+═══════════════════════════════════════════════════════════ -->
+
+<!-- Custom Collections Modal (smart auto collections) -->
+<div class="modal" id="smartCollectionsModal" role="dialog" aria-hidden="true">
+  <div class="modal-box" style="max-width:640px">
+    <button class="modal-close" id="smartCollectionsClose">✕</button>
+    <div class="auth-brand" style="margin-bottom:8px">📚 AUTO COLLECTIONS</div>
+    <h2 class="modal-title" style="font-size:1.7rem;margin-bottom:18px">Smart Playlists</h2>
+    <div id="smartCollectionsList" class="smart-collections-list"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<!-- CLOUD STATUS -->
 <div class="cloud-status" id="cloudStatus">☁ Cloud ready</div>
 
+<!-- SCRIPTS -->
 <script src="scripts/config.js"></script>
 <script src="scripts/api.js"></script>
 <script src="scripts/auth.js"></script>
@@ -666,6 +775,23 @@
 <script src="scripts/visuals.js"></script>
 <script src="scripts/sounds.js"></script>
 <script src="scripts/discovery.js"></script>
+<script src="scripts/advanced.js"></script>
+<script src="scripts/pro.js"></script>
+<script src="scripts/custom.js"></script>
 <script src="scripts/features.js"></script>
+
+<!-- PWA Registration -->
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", function () {
+    navigator.serviceWorker.register("service-worker.js").then(function (reg) {
+      console.log("✅ Service Worker registered");
+    }).catch(function (err) {
+      console.log("⚠️ Service Worker not registered:", err);
+    });
+  });
+}
+</script>
+
 </body>
 </html>
