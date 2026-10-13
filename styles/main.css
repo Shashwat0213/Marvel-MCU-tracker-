@@ -1,6 +1,6 @@
 /* =========================================================
    CINEVAULT — MAIN STYLES
-   Phase 3: With Backdrop + Trailer Modal support
+   Phase 3: Fixed modal scroll + backdrop
 ========================================================= */
 
 /* RESET */
@@ -198,12 +198,50 @@ body.light .hero::after{background:linear-gradient(90deg, rgba(255,255,255,.4), 
 .modal-box{width:min(900px,96vw);max-height:90vh;overflow-y:auto;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);padding:26px;box-shadow:0 40px 100px rgba(0,0,0,.6);transform:translateY(30px) scale(.95);transition:transform .4s cubic-bezier(.4,0,.2,1);position:relative;}
 .modal.on .modal-box{transform:translateY(0) scale(1);}
 
-/* MOVIE MODAL BOX - with backdrop */
-.movie-modal-box{overflow:hidden;padding:0;}
-.modal-backdrop{position:absolute;inset:0;background-size:cover;background-position:center;opacity:.18;filter:blur(2px);z-index:0;pointer-events:none;}
-.modal-backdrop::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg, transparent 0%, var(--surface) 70%);}
-.movie-modal-box .modal-wide{position:relative;z-index:1;padding:26px;}
-.movie-modal-box .modal-close{z-index:10;}
+/* MOVIE MODAL BOX - with backdrop + fixed scroll */
+.movie-modal-box{
+  overflow:hidden;
+  padding:0;
+  position:relative;
+}
+.modal-backdrop{
+  position:absolute;
+  inset:0;
+  background-size:cover;
+  background-position:center;
+  opacity:.18;
+  filter:blur(2px);
+  z-index:0;
+  pointer-events:none;
+}
+.modal-backdrop::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(180deg, transparent 0%, var(--surface) 70%);
+}
+.movie-modal-box .modal-wide{
+  position:relative;
+  z-index:1;
+  padding:26px;
+  max-height:90vh;
+  overflow-y:auto;
+}
+.movie-modal-box .modal-close{
+  z-index:10;
+}
+
+/* Hide scrollbar for inner content while keeping scroll */
+.movie-modal-box .modal-wide::-webkit-scrollbar{
+  width:6px;
+}
+.movie-modal-box .modal-wide::-webkit-scrollbar-track{
+  background:transparent;
+}
+.movie-modal-box .modal-wide::-webkit-scrollbar-thumb{
+  background:color-mix(in srgb, var(--primary) 40%, transparent);
+  border-radius:20px;
+}
 
 .modal-wide{display:grid;grid-template-columns:280px 1fr;gap:26px;}
 .modal-poster-wrap{position:relative;}
@@ -403,7 +441,7 @@ body.light .hero::after{background:linear-gradient(90deg, rgba(255,255,255,.4), 
 .share-preview{padding:16px;border-radius:var(--radius-md);background:var(--surface-2);border:1px solid var(--border);margin-bottom:16px;font-size:.82rem;line-height:1.65;color:var(--text-dim);max-height:260px;overflow-y:auto;white-space:pre-wrap;font-family:"Poppins",sans-serif;}
 .share-actions{display:flex;gap:8px;flex-wrap:wrap;}
 
-/* TRAILER MODAL (Phase 3) */
+/* TRAILER MODAL */
 .trailer-modal{z-index:1100;padding:20px;}
 .trailer-modal-box{
   width:min(900px,96vw);
@@ -469,7 +507,7 @@ body.light .hero::after{background:linear-gradient(90deg, rgba(255,255,255,.4), 
   .modal-poster{max-height:340px;}
   .modal-box{padding:20px;border-radius:var(--radius-lg);}
   .movie-modal-box{padding:0;}
-  .movie-modal-box .modal-wide{padding:18px;}
+  .movie-modal-box .modal-wide{padding:18px;max-height:94vh;overflow-y:auto;}
   .modal-title{font-size:1.5rem;}
   .form-row{grid-template-columns:1fr;}
   .btn{padding:9px 12px;font-size:.72rem;}
