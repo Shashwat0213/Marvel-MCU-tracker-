@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="styles/episodes.css">
 <link rel="stylesheet" href="styles/reviews.css">
 <link rel="stylesheet" href="styles/visuals.css">
+<link rel="stylesheet" href="styles/discovery.css">
 </head>
 <body data-accent="gold">
 
@@ -37,6 +38,7 @@
       <div class="brand-tag">Your Movie Universe</div>
     </div>
     <div class="actions">
+      <button class="btn btn-icon" id="soundToggleBtn" title="Sound On/Off">🔊</button>
       <button class="btn btn-icon" id="statsBtn" title="Statistics">📊</button>
       <button class="btn btn-icon" id="achievementsBtn" title="Achievements">🏆</button>
       <button class="btn btn-icon" id="calendarBtn" title="Calendar">📅</button>
@@ -67,7 +69,7 @@
       Movie You <span class="accent">Love.</span>
     </h1>
     <p class="hero-copy">
-      Search any movie or web series, build your personal watchlist, write reviews, track episodes, and never lose your place.
+      Search any movie or web series, build your personal watchlist, write reviews, track episodes, and discover new favorites.
     </p>
     <div class="hero-actions">
       <button class="btn btn-primary" id="heroSearchBtn">🔍 Start Searching</button>
@@ -106,6 +108,33 @@
       <span>Your highest-rated favorites</span>
     </div>
     <div class="top-rated-scroll" id="topRatedScroll"></div>
+  </section>
+
+  <!-- GENRE EXPLORER SECTION (Phase 4 - NEW) -->
+  <section class="genre-explorer-section" id="genreExplorerSection" style="display:none">
+    <div class="genre-explorer-header">
+      <h2>🎭 Explore Genres</h2>
+      <span id="genreExplorerCount">0 genres</span>
+    </div>
+    <div class="genre-chips-scroll" id="genreChipsScroll"></div>
+  </section>
+
+  <!-- TRENDING NOW SECTION (Phase 4 - NEW) -->
+  <section class="trending-section" id="trendingSection" style="display:none">
+    <div class="trending-header">
+      <h2>🔥 Trending Now</h2>
+      <span>Popular in your vault</span>
+    </div>
+    <div class="trending-scroll" id="trendingScroll"></div>
+  </section>
+
+  <!-- RECOMMENDATIONS SECTION (Phase 4 - NEW) -->
+  <section class="recommendations-section" id="recommendationsSection" style="display:none">
+    <div class="recommendations-header">
+      <h2>💡 For You</h2>
+      <span>Based on your taste</span>
+    </div>
+    <div class="recommendations-scroll" id="recommendationsScroll"></div>
   </section>
 
   <section class="stats" id="stats">
@@ -169,6 +198,12 @@
     </div>
   </div>
 
+  <!-- Active genre filter indicator -->
+  <div class="active-filter-indicator" id="activeGenreFilter" style="display:none">
+    <span>Showing: <strong id="activeGenreName">Genre</strong></span>
+    <button id="clearGenreFilter">✕ Clear</button>
+  </div>
+
   <ul class="movies" id="moviesList">
     <li class="empty">
       <div class="empty-icon">🎬</div>
@@ -186,7 +221,6 @@
 <!-- MOVIE DETAILS MODAL -->
 <div class="modal" id="movieModal" role="dialog" aria-hidden="true">
   <div class="modal-box movie-modal-box">
-    <!-- BACKDROP IMAGE (Phase 3) -->
     <div class="modal-backdrop" id="modalBackdrop"></div>
 
     <button class="modal-close" id="modalClose">✕</button>
@@ -203,7 +237,6 @@
         <div class="modal-tags" id="mTags"></div>
         <p class="modal-desc" id="mDesc"></p>
 
-        <!-- SERIES INFO BOX -->
         <div class="series-info-box" id="seriesInfoBox" style="display:none">
           <div class="series-info-header">
             <span class="series-info-icon">📺</span>
@@ -250,7 +283,6 @@
           <button class="mbtn mbtn-danger" id="btnDelete">🗑 Delete</button>
         </div>
 
-        <!-- Watch Providers -->
         <div class="watch-providers-section" id="watchSection">
           <label>📺 Where to Watch</label>
           <div class="watch-loading">
@@ -259,7 +291,6 @@
           </div>
         </div>
 
-        <!-- Reviews Section -->
         <div class="reviews-section" id="reviewsSection">
           <div class="reviews-header">
             <label>💬 My Reviews</label>
@@ -285,7 +316,7 @@
   </div>
 </div>
 
-<!-- TRAILER EMBED MODAL (Phase 3) -->
+<!-- TRAILER EMBED MODAL -->
 <div class="modal trailer-modal" id="trailerModal" role="dialog" aria-hidden="true">
   <div class="trailer-modal-box">
     <button class="modal-close" id="trailerClose">✕</button>
@@ -506,7 +537,6 @@
   </div>
 </div>
 
-<!-- COLLECTIONS MODAL -->
 <div class="modal" id="collectionsModal" role="dialog" aria-hidden="true">
   <div class="modal-box" style="max-width:640px">
     <button class="modal-close" id="collectionsClose">✕</button>
@@ -634,6 +664,8 @@
 <script src="scripts/episodes.js"></script>
 <script src="scripts/reviews.js"></script>
 <script src="scripts/visuals.js"></script>
+<script src="scripts/sounds.js"></script>
+<script src="scripts/discovery.js"></script>
 <script src="scripts/features.js"></script>
 </body>
 </html>
