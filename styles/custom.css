@@ -1,0 +1,391 @@
+/* =========================================================
+   CINEVAULT — CUSTOM STYLES
+   Phase 7: Extra Themes, Custom Cursor, Smart Collections
+========================================================= */
+
+/* =========================================================
+   1. EXTRA THEMES — Tokyo, Paper, VHS, Emerald
+========================================================= */
+
+/* ---------- TOKYO (Cyberpunk) ---------- */
+body[data-accent="tokyo"]{
+  --primary:#00f0ff;
+  --primary-2:#ff00e5;
+  --accent:#ff00e5;
+  --accent-2:#00f0ff;
+  --bg:#050510;
+  --surface:#0a0a1f;
+  --surface-2:#12122e;
+  --border:rgba(0,240,255,.15);
+  --text:#e8f7ff;
+  --text-dim:#7a94a8;
+  --text-mute:#3a4a5c;
+}
+
+body[data-accent="tokyo"]::before{
+  background:
+    radial-gradient(circle at 20% 0%, rgba(255,0,229,.15) 0%, transparent 40%),
+    radial-gradient(circle at 80% 20%, rgba(0,240,255,.15) 0%, transparent 40%),
+    radial-gradient(circle at 50% 100%, rgba(255,0,229,.1) 0%, transparent 50%);
+}
+
+body[data-accent="tokyo"] .movie{
+  border-radius:4px;
+  border-color:rgba(0,240,255,.25);
+}
+
+body[data-accent="tokyo"] .movie:hover{
+  border-color:#00f0ff;
+  box-shadow:0 0 20px rgba(0,240,255,.4);
+}
+
+body[data-accent="tokyo"] .brand-name{
+  background:linear-gradient(135deg, #00f0ff 0%, #ff00e5 100%);
+  -webkit-background-clip:text;
+  background-clip:text;
+  text-shadow:0 0 20px rgba(0,240,255,.6);
+}
+
+/* ---------- PAPER (Minimal) ---------- */
+body[data-accent="paper"]{
+  --primary:#c9452c;
+  --primary-2:#8b1e1e;
+  --accent:#2c5f5d;
+  --accent-2:#c9452c;
+  --bg:#f5f1e8;
+  --surface:#ffffff;
+  --surface-2:#faf7f0;
+  --border:rgba(0,0,0,.1);
+  --text:#1a1a1a;
+  --text-dim:#555;
+  --text-mute:#888;
+}
+
+body[data-accent="paper"]::before{
+  background:
+    radial-gradient(circle at 20% 10%, rgba(201,69,44,.04) 0%, transparent 50%),
+    #f5f1e8;
+}
+
+body[data-accent="paper"] .movie{
+  border-radius:0;
+  border:1px solid rgba(0,0,0,.12);
+  background:#fff;
+}
+
+body[data-accent="paper"] .brand-name{
+  font-family:"Playfair Display", Georgia, serif;
+  font-style:italic;
+}
+
+/* ---------- VHS (Retro) ---------- */
+body[data-accent="vhs"]{
+  --primary:#ff006e;
+  --primary-2:#8338ec;
+  --accent:#3a86ff;
+  --accent-2:#ffbe0b;
+  --bg:#16062b;
+  --surface:#200b3f;
+  --surface-2:#2a1250;
+  --border:rgba(255,0,110,.25);
+  --text:#fff0ff;
+  --text-dim:#c899ff;
+  --text-mute:#7a4dad;
+}
+
+body[data-accent="vhs"]::before{
+  background:
+    radial-gradient(circle at 50% 100%, rgba(255,0,110,.25) 0%, transparent 45%),
+    radial-gradient(circle at 20% 20%, rgba(131,56,236,.2) 0%, transparent 40%),
+    #16062b;
+}
+
+body[data-accent="vhs"] .movie{
+  border-radius:2px;
+  border-color:rgba(255,0,110,.35);
+}
+
+body[data-accent="vhs"] .movie:hover{
+  transform:translate(-3px,-3px);
+  box-shadow:6px 6px 0 #ff006e;
+}
+
+body[data-accent="vhs"] .brand-name{
+  background:linear-gradient(180deg, #fff 0%, #ff006e 50%, #8338ec 100%);
+  -webkit-background-clip:text;
+  background-clip:text;
+  font-style:italic;
+}
+
+/* ---------- EMERALD (Luxury) ---------- */
+body[data-accent="emerald"]{
+  --primary:#d4af37;
+  --primary-2:#b8860b;
+  --accent:#0e7c5a;
+  --accent-2:#d4af37;
+  --bg:#08130f;
+  --surface:#0f2019;
+  --surface-2:#142a20;
+  --border:rgba(212,175,55,.18);
+  --text:#f4f1e6;
+  --text-dim:#8fa896;
+  --text-mute:#5a6f60;
+}
+
+body[data-accent="emerald"]::before{
+  background:
+    radial-gradient(circle at 15% 10%, rgba(212,175,55,.08) 0%, transparent 40%),
+    radial-gradient(circle at 85% 30%, rgba(14,124,90,.12) 0%, transparent 45%),
+    #08130f;
+}
+
+body[data-accent="emerald"] .brand-name{
+  font-family:"Cormorant Garamond", Georgia, serif;
+  background:linear-gradient(135deg, #f4f1e6 0%, #d4af37 100%);
+  -webkit-background-clip:text;
+  background-clip:text;
+}
+
+body[data-accent="emerald"] .movie{
+  border-radius:6px;
+  border-color:rgba(212,175,55,.2);
+}
+
+body[data-accent="emerald"] .movie:hover{
+  border-color:#d4af37;
+  box-shadow:0 0 30px rgba(212,175,55,.2);
+}
+
+/* =========================================================
+   2. CUSTOM CURSOR
+========================================================= */
+body.custom-cursor,
+body.custom-cursor *{
+  cursor:none !important;
+}
+
+.cv-cursor{
+  position:fixed;
+  width:24px;
+  height:24px;
+  border:2px solid var(--primary);
+  border-radius:50%;
+  pointer-events:none;
+  z-index:999999;
+  transition:transform .15s ease, width .2s, height .2s, background .2s;
+  transform:translate(-50%, -50%);
+  mix-blend-mode:difference;
+  box-shadow:0 0 20px rgba(255,184,0,.5);
+}
+
+.cv-cursor.hover{
+  width:44px;
+  height:44px;
+  background:rgba(255,184,0,.15);
+  border-color:var(--accent);
+}
+
+.cv-cursor-dot{
+  position:fixed;
+  width:4px;
+  height:4px;
+  background:var(--primary);
+  border-radius:50%;
+  pointer-events:none;
+  z-index:999999;
+  transform:translate(-50%, -50%);
+  box-shadow:0 0 10px var(--primary);
+}
+
+@media (pointer:coarse){
+  body.custom-cursor,
+  body.custom-cursor *{
+    cursor:auto !important;
+  }
+  .cv-cursor,
+  .cv-cursor-dot{
+    display:none !important;
+  }
+}
+
+/* =========================================================
+   3. FLOATING PARTICLES (background ambience)
+========================================================= */
+.cv-particles{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:-1;
+  overflow:hidden;
+}
+
+.cv-particle{
+  position:absolute;
+  width:4px;
+  height:4px;
+  background:var(--primary);
+  border-radius:50%;
+  opacity:0;
+  box-shadow:0 0 8px var(--primary);
+  animation:cvParticleFloat linear infinite;
+}
+
+@keyframes cvParticleFloat{
+  0%{
+    transform:translateY(0) translateX(0);
+    opacity:0;
+  }
+  10%{opacity:.6;}
+  90%{opacity:.6;}
+  100%{
+    transform:translateY(-110vh) translateX(50px);
+    opacity:0;
+  }
+}
+
+/* =========================================================
+   4. SMART COLLECTIONS (Auto playlists)
+========================================================= */
+.smart-collections-list{
+  display:grid;
+  gap:10px;
+  max-height:480px;
+  overflow-y:auto;
+}
+
+.smart-collection-item{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:14px;
+  border:1px solid var(--border);
+  border-radius:var(--radius-md);
+  background:var(--surface-2);
+  cursor:pointer;
+  transition:.25s;
+}
+
+.smart-collection-item:hover{
+  border-color:var(--primary);
+  transform:translateX(4px);
+}
+
+.smart-collection-icon{
+  width:48px;
+  height:48px;
+  border-radius:12px;
+  display:grid;
+  place-items:center;
+  font-size:22px;
+  background:linear-gradient(135deg, var(--primary), var(--accent));
+  color:#0a0614;
+  flex-shrink:0;
+  box-shadow:0 6px 20px rgba(255,184,0,.3);
+}
+
+.smart-collection-info{
+  flex:1;
+  min-width:0;
+}
+
+.smart-collection-info strong{
+  display:block;
+  font-size:.88rem;
+  font-weight:700;
+  color:var(--text);
+  margin-bottom:3px;
+}
+
+.smart-collection-info small{
+  display:block;
+  color:var(--text-dim);
+  font-size:.68rem;
+  font-weight:600;
+}
+
+.smart-collection-count{
+  padding:6px 12px;
+  border-radius:99px;
+  background:rgba(255,184,0,.15);
+  color:var(--primary);
+  font-weight:800;
+  font-size:.68rem;
+  flex-shrink:0;
+}
+
+/* =========================================================
+   5. CUSTOM THEME PICKER (top of page)
+========================================================= */
+.custom-theme-picker{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+  padding:14px 18px;
+  margin-bottom:24px;
+  border-radius:var(--radius-md);
+  background:var(--surface);
+  border:1px solid var(--border);
+}
+
+.custom-theme-picker .theme-btn-pro{
+  padding:8px 14px;
+  border-radius:99px;
+  border:1px solid var(--border);
+  background:rgba(255,255,255,.04);
+  color:var(--text-dim);
+  font-family:inherit;
+  font-size:.72rem;
+  font-weight:700;
+  cursor:pointer;
+  transition:.25s;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+}
+
+.custom-theme-picker .theme-btn-pro:hover{
+  border-color:var(--primary);
+  color:var(--primary);
+}
+
+.custom-theme-picker .theme-btn-pro.active{
+  border-color:var(--primary);
+  background:color-mix(in srgb, var(--primary) 10%, transparent);
+  color:var(--text);
+}
+
+.custom-theme-picker .theme-dot-pro{
+  width:12px;
+  height:12px;
+  border-radius:50%;
+  flex-shrink:0;
+  box-shadow:0 0 8px currentColor;
+}
+
+/* =========================================================
+   6. RESPONSIVE
+========================================================= */
+@media (max-width:700px){
+  .smart-collection-icon{
+    width:40px;
+    height:40px;
+    font-size:18px;
+  }
+  .custom-theme-picker{
+    padding:12px 14px;
+  }
+  .custom-theme-picker .theme-btn-pro{
+    padding:7px 11px;
+    font-size:.65rem;
+  }
+}
+
+@media (prefers-reduced-motion:reduce){
+  .cv-particle,
+  .cv-cursor,
+  .cv-cursor-dot{
+    display:none !important;
+    animation:none !important;
+  }
+}
