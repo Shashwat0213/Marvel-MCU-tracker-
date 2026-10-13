@@ -34,7 +34,7 @@
   let activeGenre = "";
 
   /* =========================================================
-     1. GENRE EXPLORER
+     1. GENRE EXTRACTION
   ========================================================== */
   function extractGenres() {
     const genreMap = {};
@@ -60,6 +60,9 @@
     return genres;
   }
 
+  /* =========================================================
+     2. RENDER GENRE EXPLORER
+  ========================================================== */
   function renderGenreExplorer() {
     const section = $("genreExplorerSection");
     const scroll = $("genreChipsScroll");
@@ -110,50 +113,51 @@
   }
 
   /* =========================================================
-     SET ACTIVE GENRE — triggers full re-render
+     3. SET ACTIVE GENRE — Triggers full re-render
   ========================================================== */
   function setActiveGenre(genre) {
     activeGenre = genre || "";
 
-    console.log("🎭 Setting active genre:", activeGenre || "All");
+    console.log("🎭 Active genre set to:", activeGenre || "All");
 
     renderGenreExplorer();
     updateActiveGenreIndicator();
 
-    // Force re-render — try multiple methods for reliability
+    // Force re-render — multiple fallbacks
     let rendered = false;
 
     if (window.CV_APP) {
-      // Method 1: renderAll (best — refreshes everything)
+      // Primary: renderAll
       if (typeof window.CV_APP.renderAll === "function") {
         try {
           window.CV_APP.renderAll();
           rendered = true;
-          console.log("🔄 renderAll() called successfully");
+          console.log("🔄 renderAll() called");
         } catch (err) {
           console.error("renderAll failed:", err);
         }
       }
 
-      // Method 2: renderMovies fallback
+      // Fallback: renderMovies
       if (!rendered && typeof window.CV_APP.renderMovies === "function") {
         try {
           window.CV_APP.renderMovies();
           rendered = true;
-          console.log("🔄 renderMovies() called successfully");
+          console.log("🔄 renderMovies() called");
         } catch (err) {
           console.error("renderMovies failed:", err);
         }
       }
-    } else {
-      console.warn("⚠️ CV_APP not available");
     }
 
     if (!rendered) {
-      console.error("❌ Could not re-render movies — filter may not work");
+      console.error("❌ No render method available");
     }
   }
 
+  /* =========================================================
+     4. UPDATE INDICATOR
+  ========================================================== */
   function updateActiveGenreIndicator() {
     const indicator = $("activeGenreFilter");
     const nameEl = $("activeGenreName");
@@ -173,7 +177,7 @@
   }
 
   /* =========================================================
-     2. TRENDING NOW
+     5. TRENDING SCORE
   ========================================================== */
   function calculateTrendingScore(movie) {
     let score = 0;
@@ -192,4 +196,260 @@
 
     if (movie.favorite) score += 12;
 
-    if (movie.reviews && movie.reviews.length
+    if (movie.reviews && movie.reviews.length > 0) {
+      score += movie.reviews.length * 5;
+    }
+
+    if (window.CV_EPISODES && window.CV_EPISODES.isSeries && window.CV_EPISODES.isSeries(movie)) {
+      const percent = window.CV_EPISODES.getProgressPercent(movie);
+      score += percent * 0.15;
+    }
+
+    return score;
+  }
+
+  function renderTrending() {
+    const section = $("trendingSection");
+    const scroll = $("trendingScroll");
+    if (!section || !scroll) return;
+
+    if (state.vault.length < 5) {
+      section.style.display = "none";
+      return;
+    }
+
+    const scored = state.vault.map(function (m) {
+      return { movie: m, score: calculateTrendingScore(m) };
+    });
+
+    scored.sort(function (a, b) { return b.score - a.score; });
+
+    const trending = scored.slice(0, 8);
+
+    if (trending.length === 0) {
+      section.style.display = "none";
+      return;
+    }
+
+    section.style.display = "block";
+
+    scroll.innerHTML = trending.map(function (item, i) {
+      const m = item.movie;
+      const rank = i + 1;
+
+      return '<div class="trending-item" data-id="' + esc(m.id) + '">' +
+        '<div class="trending-poster">' +
+          '<img src="' + esc(m.poster) + '" alt="' + esc(m.title) + '" ' +
+            'onerror="this.src=\'https://placehold.co/200x300/1a1030/ffb800?text=?\'">' +
+          '<div class="trending-fire">🔥</div>' +
+          '<div class="trending-rank">#' + rank + '</div>' +
+        '</div>' +
+        '<div class="trending-title">' + esc(m.title) + '</div>' +
+      '</div>';
+    }).join("");
+
+    scroll.querySelectorAll(".trending-item").forEach(function (item) {
+      item.addEventListener("click", function () {
+        const id = item.dataset.id;
+        playSound("whoosh", 0.2);
+        if (window.CV_APP && window.CV_APP.openModal) {
+          window.CV_APP.openModal(id);
+        }
+      });
+    });
+  }
+
+  /* =========================================================
+     6. RECOMMENDATIONS
+  ========================================================== */
+  function getUserTopGenres() {
+    const genreCount = {};
+
+    state.vault.forEach(function (m) {
+      if (m.status !== "watched" && !m.favorite) return;
+      if (!m.genre) return;
+
+      const weight = m.favorite ? 2 : 1;
+
+      m.genre.split(",").forEach(function (g) {
+        const clean = g.trim();
+        if (!clean) return;
+        genreCount[clean] = (genreCount[clean] || 0) + weight;
+      });
+    });
+
+    const sorted = Object.keys(genreCount).map(function (name) {
+      return { name: name, count: genreCount[name] };
+    }).sort(function (a, b) { return b.count - a.count; });
+
+    return sorted.slice(0, 5).map(function (g) { return g.name; });
+  }
+
+  function renderRecommendations() {
+    const section = $("recommendationsSection");
+    const scroll = $("recommendationsScroll");
+    if (!section || !scroll) return;
+
+    const watchedCount = state.vault.filter(function (m) {
+      return m.status === "watched" || m.favorite;
+    }).length;
+
+    if (watchedCount < 3) {
+      section.style.display = "none";
+      return;
+    }
+
+    const topGenres = getUserTopGenres();
+    if (topGenres.length === 0) {
+      section.style.display = "none";
+      return;
+    }
+
+    const candidates = state.vault.filter(function (m) {
+      if (m.status !== "want") return false;
+      if (!m.genre) return false;
+
+      const lowerGenre = m.genre.toLowerCase();
+      return topGenres.some(function (g) {
+        return lowerGenre.indexOf(g.toLowerCase()) !== -1;
+      });
+    });
+
+    let recommendations;
+    if (candidates.length > 0) {
+      candidates.sort(function (a, b) {
+        return (b.addedAt || 0) - (a.addedAt || 0);
+      });
+      recommendations = candidates.slice(0, 6).map(function (m) {
+        const lowerGenre = (m.genre || "").toLowerCase();
+        const matched = topGenres.find(function (g) {
+          return lowerGenre.indexOf(g.toLowerCase()) !== -1;
+        });
+        return {
+          movie: m,
+          reason: matched ? "Matches your " + matched : "Recommended"
+        };
+      });
+    } else {
+      const recent = state.vault.slice().sort(function (a, b) {
+        return (b.addedAt || 0) - (a.addedAt || 0);
+      }).slice(0, 6);
+
+      recommendations = recent.map(function (m) {
+        return { movie: m, reason: "Recently added" };
+      });
+    }
+
+    if (recommendations.length === 0) {
+      section.style.display = "none";
+      return;
+    }
+
+    section.style.display = "block";
+
+    scroll.innerHTML = recommendations.map(function (rec) {
+      const m = rec.movie;
+      return '<div class="recommendation-item" data-id="' + esc(m.id) + '">' +
+        '<div class="recommendation-poster">' +
+          '<img src="' + esc(m.poster) + '" alt="' + esc(m.title) + '" ' +
+            'onerror="this.src=\'https://placehold.co/200x300/1a1030/ffb800?text=?\'">' +
+          '<div class="recommendation-tag">💡 For You</div>' +
+        '</div>' +
+        '<div class="recommendation-title">' + esc(m.title) + '</div>' +
+        '<div class="recommendation-reason">' + esc(rec.reason) + '</div>' +
+      '</div>';
+    }).join("");
+
+    scroll.querySelectorAll(".recommendation-item").forEach(function (item) {
+      item.addEventListener("click", function () {
+        const id = item.dataset.id;
+        playSound("whoosh", 0.2);
+        if (window.CV_APP && window.CV_APP.openModal) {
+          window.CV_APP.openModal(id);
+        }
+      });
+    });
+  }
+
+  /* =========================================================
+     7. APPLY GENRE FILTER — called by CV_APP.getFiltered
+  ========================================================== */
+  function applyGenreFilter(list) {
+    if (!activeGenre) return list;
+
+    const target = activeGenre.toLowerCase().trim();
+
+    return list.filter(function (m) {
+      if (!m.genre) return false;
+
+      const movieGenres = String(m.genre).toLowerCase().split(",").map(function (g) {
+        return g.trim();
+      });
+
+      return movieGenres.some(function (g) {
+        return g === target || g.indexOf(target) !== -1;
+      });
+    });
+  }
+
+  function getActiveGenre() {
+    return activeGenre;
+  }
+
+  /* =========================================================
+     8. RENDER ALL
+  ========================================================== */
+  function renderAll() {
+    renderGenreExplorer();
+    renderTrending();
+    renderRecommendations();
+    updateActiveGenreIndicator();
+  }
+
+  /* =========================================================
+     9. BIND UI
+  ========================================================== */
+  function bindUI() {
+    const clearBtn = $("clearGenreFilter");
+    if (clearBtn) {
+      clearBtn.addEventListener("click", clearGenreFilter);
+    }
+  }
+
+  /* =========================================================
+     10. EXPORTS
+  ========================================================== */
+  window.CV_DISCOVERY = {
+    renderAll: renderAll,
+    renderGenreExplorer: renderGenreExplorer,
+    renderTrending: renderTrending,
+    renderRecommendations: renderRecommendations,
+    applyGenreFilter: applyGenreFilter,
+    getActiveGenre: getActiveGenre,
+    setActiveGenre: setActiveGenre,
+    clearGenreFilter: clearGenreFilter,
+    getState: function () {
+      return { activeGenre: activeGenre };
+    }
+  };
+
+  /* =========================================================
+     INIT
+  ========================================================== */
+  function init() {
+    bindUI();
+
+    setTimeout(function () {
+      renderAll();
+    }, 600);
+
+    console.log("🎬 CineVault Discovery module loaded (FIXED)");
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
+
+})();
