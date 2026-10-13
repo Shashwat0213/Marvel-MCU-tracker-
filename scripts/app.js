@@ -1,6 +1,7 @@
 /* =========================================================
-   CINEVAULT — APP (Main Logic)
-   Part 1/5: Setup, utilities, storage, filters
+   CINEVAULT — APP (Main Logic) — FINAL VERSION
+   All phases integrated: Episode + Reviews + Visuals + Discovery + Advanced + Pro + Custom
+   Part 1/5
 ========================================================= */
 
 (function () {
@@ -12,6 +13,9 @@
   const AUTH = window.CV_AUTH;
   const VISUALS = window.CV_VISUALS;
   const DISCOVERY = window.CV_DISCOVERY;
+  const ADVANCED = window.CV_ADVANCED;
+  const PRO = window.CV_PRO;
+  const CUSTOM = window.CV_CUSTOM;
 
   if (!CFG || !state || !API) {
     console.error("❌ config.js / api.js not loaded before app.js");
@@ -124,7 +128,7 @@
       });
     }
 
-    // Apply Discovery genre filter (Phase 4)
+    // Apply Discovery genre filter
     if (DISCOVERY && DISCOVERY.applyGenreFilter) {
       list = DISCOVERY.applyGenreFilter(list);
     }
@@ -313,16 +317,21 @@ function updateStats() {
 function renderAll() {
   renderMovies();
   updateStats();
+
   if (window.CV_FEATURES && window.CV_FEATURES.checkAchievements) {
     window.CV_FEATURES.checkAchievements();
   }
-  // Refresh Top Rated (Phase 3)
   if (VISUALS && VISUALS.renderTopRated) {
     VISUALS.renderTopRated();
   }
-  // Refresh Discovery sections (Phase 4)
   if (DISCOVERY && DISCOVERY.renderAll) {
     DISCOVERY.renderAll();
+  }
+  if (ADVANCED && ADVANCED.renderAll) {
+    ADVANCED.renderAll();
+  }
+  if (CUSTOM && CUSTOM.renderAll) {
+    CUSTOM.renderAll();
   }
 }
 
@@ -375,12 +384,16 @@ function setStatus(id, status) {
   m.status = status;
   if (status === "watched" && !m.watchedAt) {
     m.watchedAt = Date.now();
+    m.lastWatched = Date.now();
     const d = new Date(m.watchedAt);
     const key = d.getFullYear() + "-" +
                 String(d.getMonth() + 1).padStart(2, "0") + "-" +
                 String(d.getDate()).padStart(2, "0");
     state.watchHistory[key] = (state.watchHistory[key] || 0) + 1;
     saveWatchHistory();
+  }
+  if (status === "watching") {
+    m.lastWatched = Date.now();
   }
   saveVault();
   renderAll();
@@ -562,26 +575,22 @@ function openModal(id) {
   const noteEl = $("mNote");
   if (noteEl) noteEl.value = m.notes || "";
 
+  // Feature modules
   if (window.CV_FEATURES && window.CV_FEATURES.setStars) {
     window.CV_FEATURES.setStars(m.userRating || 0);
   }
-
   if (window.CV_FEATURES && window.CV_FEATURES.loadSimilar) {
     window.CV_FEATURES.loadSimilar(m.tmdbId);
   }
-
   if (window.CV_WATCH && window.CV_WATCH.renderWatchSection) {
     window.CV_WATCH.renderWatchSection(m);
   }
-
   if (window.CV_EPISODES && window.CV_EPISODES.renderSeriesInfoBox) {
     window.CV_EPISODES.renderSeriesInfoBox(m);
   }
-
   if (window.CV_REVIEWS && window.CV_REVIEWS.renderReviews) {
     window.CV_REVIEWS.renderReviews(m);
   }
-
   if (VISUALS && VISUALS.renderBackdrop) {
     VISUALS.renderBackdrop(m);
   }
@@ -960,9 +969,27 @@ function bindEvents() {
       const episodesModal = $("episodesModal");
       const reviewModal = $("reviewModal");
       const trailerModal = $("trailerModal");
+      const goalsModal = $("goalsModal");
+      const releaseModal = $("releaseCalendarModal");
+      const wrapModal = $("wrapUpModal");
+      const smartModal = $("smartCollectionsModal");
       const authOverlay = $("authOverlay");
 
-      if (trailerModal && trailerModal.classList.contains("on")) {
+      if (smartModal && smartModal.classList.contains("on")) {
+        if (CUSTOM && CUSTOM.closeSmartCollections) CUSTOM.closeSmartCollections();
+      } else if (wrapModal && wrapModal.classList.contains("on")) {
+        if (PRO && PRO.closeWrapUp) PRO.closeWrapUp();
+      } else if (releaseModal && releaseModal.classList.contains("on")) {
+        if (ADVANCED && ADVANCED.openReleaseCalendar) {
+          releaseModal.classList.remove("on");
+          document.body.style.overflow = "";
+        }
+      } else if (goalsModal && goalsModal.classList.contains("on")) {
+        if (ADVANCED && ADVANCED.openGoalsModal) {
+          goalsModal.classList.remove("on");
+          document.body.style.overflow = "";
+        }
+      } else if (trailerModal && trailerModal.classList.contains("on")) {
         if (VISUALS && VISUALS.closeTrailerModal) VISUALS.closeTrailerModal();
       } else if (reviewModal && reviewModal.classList.contains("on")) {
         if (window.CV_REVIEWS && window.CV_REVIEWS.closeReviewModal) window.CV_REVIEWS.closeReviewModal();
@@ -1122,14 +1149,17 @@ function setupHeroParallax() {
         window.CV_FEATURES.init();
       }
 
-      // Render discovery sections (Phase 4)
-      if (DISCOVERY && DISCOVERY.renderAll) {
-        setTimeout(function () { DISCOVERY.renderAll(); }, 800);
-      }
+      // Refresh all discovery/advanced sections after a delay
+      setTimeout(function () {
+        if (DISCOVERY && DISCOVERY.renderAll) DISCOVERY.renderAll();
+        if (ADVANCED && ADVANCED.renderAll) ADVANCED.renderAll();
+        if (CUSTOM && CUSTOM.renderAll) CUSTOM.renderAll();
+      }, 800);
 
       console.log("🎬 CineVault ready — " + state.vault.length + " items in vault");
       console.log("   📺 Series:", state.vault.filter(isSeries).length);
       console.log("   🎬 Movies:", state.vault.filter(function (m) { return !isSeries(m); }).length);
+      console.log("   ✅ All phases loaded");
     } catch (err) {
       console.error("❌ Init failed:", err);
       hideLoader();
