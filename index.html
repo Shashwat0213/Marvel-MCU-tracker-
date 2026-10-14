@@ -7,25 +7,12 @@
 <meta name="description" content="CineVault — Track every movie you love. Personal watchlist, reviews, episode tracker and more.">
 <title>CineVault — Track Every Movie You Love</title>
 
-<!--
-  ═══════════════════════════════════════════════════════════
-  CINEVAULT — MASTER FILE
-  All phases integrated:
-  
-  ✅ Phase 1: Episode System
-  ✅ Phase 2: Reviews Section
-  ✅ Phase 3: Visual Enhancements
-  ✅ Phase 4: Discovery Features
-  ⏳ Phase 5: Advanced Tools (JS fills sections)
-  ⏳ Phase 6: Pro Features (JS fills sections)
-  ⏳ Phase 7: Custom (JS fills sections)
-  ═══════════════════════════════════════════════════════════
--->
-
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
 <link rel="manifest" href="manifest.json">
+
 <link rel="stylesheet" href="styles/main.css">
 <link rel="stylesheet" href="styles/themes.css">
 <link rel="stylesheet" href="styles/animations.css">
@@ -63,7 +50,6 @@
       <button class="btn btn-icon" id="statsBtn" title="Statistics">📊</button>
       <button class="btn btn-icon" id="achievementsBtn" title="Achievements">🏆</button>
       <button class="btn btn-icon" id="calendarBtn" title="Calendar">📅</button>
-      <button class="btn btn-icon" id="goalsBtn" title="Watch Goals">🎯</button>
       <button class="btn btn-icon" id="wallViewBtn" title="Toggle Wall View">🌌</button>
       <button class="btn btn-icon" id="themeToggle" title="Light/Dark">🌙</button>
       <button class="btn" id="manualBtn">➕ Add Manually</button>
@@ -94,7 +80,7 @@
       Movie You <span class="accent">Love.</span>
     </h1>
     <p class="hero-copy">
-      Search any movie or web series, build your personal watchlist, write reviews, track episodes, set goals, and discover new favorites.
+      Search any movie or web series, build your personal watchlist, write reviews, and track episodes. Your movie universe, your rules.
     </p>
     <div class="hero-actions">
       <button class="btn btn-primary" id="heroSearchBtn">🔍 Start Searching</button>
@@ -114,7 +100,7 @@
     <div class="swatch" data-accent="pink" title="Rose Pink"></div>
   </section>
 
-  <!-- PHASE 7: CUSTOM THEME PICKER (filled by custom.js) -->
+  <!-- CUSTOM THEME PICKER (Phase 7) -->
   <section class="custom-theme-picker" id="customThemePicker" style="display:none"></section>
 
   <!-- SEARCH -->
@@ -131,13 +117,10 @@
     <div class="results-drop" id="resultsDrop"></div>
   </section>
 
-  <!-- ═══════════════════════════════════════════════════════
-       PHASE 5: RECENTLY WATCHED / CONTINUE WATCHING
-       (filled by advanced.js)
-  ═══════════════════════════════════════════════════════════ -->
+  <!-- CONTINUE WATCHING (Phase 5) -->
   <section class="continue-watching-section" id="continueWatchingSection" style="display:none"></section>
 
-  <!-- PHASE 3: TOP RATED -->
+  <!-- TOP RATED (Phase 3) -->
   <section class="top-rated-section" id="topRatedSection" style="display:none">
     <div class="top-rated-header">
       <h2>🌟 Top Rated</h2>
@@ -146,16 +129,7 @@
     <div class="top-rated-scroll" id="topRatedScroll"></div>
   </section>
 
-  <!-- PHASE 4: GENRE EXPLORER -->
-  <section class="genre-explorer-section" id="genreExplorerSection" style="display:none">
-    <div class="genre-explorer-header">
-      <h2>🎭 Explore Genres</h2>
-      <span id="genreExplorerCount">0 genres</span>
-    </div>
-    <div class="genre-chips-scroll" id="genreChipsScroll"></div>
-  </section>
-
-  <!-- PHASE 4: TRENDING NOW -->
+  <!-- TRENDING NOW (Phase 4) -->
   <section class="trending-section" id="trendingSection" style="display:none">
     <div class="trending-header">
       <h2>🔥 Trending Now</h2>
@@ -163,21 +137,6 @@
     </div>
     <div class="trending-scroll" id="trendingScroll"></div>
   </section>
-
-  <!-- PHASE 4: RECOMMENDATIONS -->
-  <section class="recommendations-section" id="recommendationsSection" style="display:none">
-    <div class="recommendations-header">
-      <h2>💡 For You</h2>
-      <span>Based on your taste</span>
-    </div>
-    <div class="recommendations-scroll" id="recommendationsScroll"></div>
-  </section>
-
-  <!-- ═══════════════════════════════════════════════════════
-       PHASE 5: WATCH GOALS
-       (filled by advanced.js)
-  ═══════════════════════════════════════════════════════════ -->
-  <section class="watch-goals-section" id="watchGoalsSection" style="display:none"></section>
 
   <!-- STATS -->
   <section class="stats" id="stats">
@@ -243,12 +202,6 @@
     </div>
   </div>
 
-  <!-- ACTIVE GENRE FILTER INDICATOR -->
-  <div class="active-filter-indicator" id="activeGenreFilter" style="display:none">
-    <span>Showing: <strong id="activeGenreName">Genre</strong></span>
-    <button id="clearGenreFilter">✕ Clear</button>
-  </div>
-
   <!-- MOVIE GRID -->
   <ul class="movies" id="moviesList">
     <li class="empty">
@@ -282,7 +235,6 @@
         <div class="modal-tags" id="mTags"></div>
         <p class="modal-desc" id="mDesc"></p>
 
-        <!-- SERIES INFO BOX -->
         <div class="series-info-box" id="seriesInfoBox" style="display:none">
           <div class="series-info-header">
             <span class="series-info-icon">📺</span>
@@ -299,10 +251,6 @@
           </button>
         </div>
 
-        <!-- WATCH GOAL PROGRESS (Phase 5, if part of a goal) -->
-        <div class="goal-progress-box" id="goalProgressBox" style="display:none"></div>
-
-        <!-- STAR RATING -->
         <div class="star-rating-wrap">
           <label>My Rating</label>
           <div class="star-rating" id="starRating" data-rating="0">
@@ -315,7 +263,6 @@
           <span class="rating-value" id="ratingValue">Not rated</span>
         </div>
 
-        <!-- STATUS -->
         <div class="modal-statuses">
           <button class="status-pick" data-status="want">🎯 Want</button>
           <button class="status-pick" data-status="watching">▶️ Watching</button>
@@ -323,7 +270,6 @@
           <button class="status-pick" data-status="dropped">⏸️ Dropped</button>
         </div>
 
-        <!-- ACTIONS -->
         <div class="modal-actions">
           <button class="mbtn mbtn-trailer" id="btnTrailer">▶ Trailer</button>
           <button class="mbtn mbtn-watch" id="btnWatch">🎬 Watch</button>
@@ -335,7 +281,6 @@
           <button class="mbtn mbtn-danger" id="btnDelete">🗑 Delete</button>
         </div>
 
-        <!-- WATCH PROVIDERS -->
         <div class="watch-providers-section" id="watchSection">
           <label>📺 Where to Watch</label>
           <div class="watch-loading">
@@ -344,7 +289,6 @@
           </div>
         </div>
 
-        <!-- REVIEWS -->
         <div class="reviews-section" id="reviewsSection">
           <div class="reviews-header">
             <label>💬 My Reviews</label>
@@ -356,13 +300,11 @@
           <div class="reviews-list" id="reviewsList"></div>
         </div>
 
-        <!-- QUICK NOTE -->
         <div class="modal-note">
           <label>Quick Note</label>
           <textarea id="mNote" placeholder="Short reminder..."></textarea>
         </div>
 
-        <!-- SIMILAR -->
         <div class="similar-section" id="similarSection" style="display:none">
           <label>💡 You might also like</label>
           <div class="similar-grid" id="similarGrid"></div>
@@ -393,7 +335,7 @@
   </div>
 </div>
 
-<!-- EPISODES FULL MODAL -->
+<!-- EPISODES MODAL -->
 <div class="modal episodes-full-modal" id="episodesModal" role="dialog" aria-hidden="true">
   <div class="episodes-modal-box">
     <button class="modal-close" id="episodesClose">✕</button>
@@ -703,26 +645,7 @@
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════
-     PHASE 5: WATCH GOALS MODAL (filled by advanced.js)
-═══════════════════════════════════════════════════════════ -->
-<div class="modal" id="goalsModal" role="dialog" aria-hidden="true">
-  <div class="modal-box" style="max-width:640px">
-    <button class="modal-close" id="goalsClose">✕</button>
-    <div class="auth-brand" style="margin-bottom:8px">🎯 WATCH GOALS</div>
-    <h2 class="modal-title" style="font-size:1.7rem;margin-bottom:18px">Your Goals</h2>
-    <div id="goalsList" class="goals-list"></div>
-    <div class="goal-create">
-      <input id="newGoalName" placeholder="Goal name (e.g. Watch 50 movies)" maxlength="60">
-      <input id="newGoalTarget" type="number" min="1" max="1000" placeholder="Target #">
-      <button class="btn btn-primary" id="newGoalBtn">+ Add Goal</button>
-    </div>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════════════════════
-     PHASE 5: RELEASE CALENDAR MODAL
-═══════════════════════════════════════════════════════════ -->
+<!-- RELEASE CALENDAR MODAL (Phase 5) -->
 <div class="modal" id="releaseCalendarModal" role="dialog" aria-hidden="true">
   <div class="modal-box" style="max-width:780px">
     <button class="modal-close" id="releaseCalendarClose">✕</button>
@@ -733,11 +656,7 @@
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════
-     PHASE 6: PRO FEATURES MODALS
-═══════════════════════════════════════════════════════════ -->
-
-<!-- Yearly Wrap-Up Modal -->
+<!-- YEARLY WRAP-UP MODAL (Phase 6) -->
 <div class="modal" id="wrapUpModal" role="dialog" aria-hidden="true">
   <div class="modal-box" style="max-width:700px">
     <button class="modal-close" id="wrapUpClose">✕</button>
@@ -745,11 +664,7 @@
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════
-     PHASE 7: CUSTOM MODALS
-═══════════════════════════════════════════════════════════ -->
-
-<!-- Custom Collections Modal (smart auto collections) -->
+<!-- SMART COLLECTIONS MODAL (Phase 7) -->
 <div class="modal" id="smartCollectionsModal" role="dialog" aria-hidden="true">
   <div class="modal-box" style="max-width:640px">
     <button class="modal-close" id="smartCollectionsClose">✕</button>
@@ -782,11 +697,11 @@
 <script src="scripts/ads.js"></script>
 <script src="scripts/features.js"></script>
 
-<!-- PWA Registration -->
+<!-- Service Worker -->
 <script>
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", function () {
-    navigator.serviceWorker.register("service-worker.js").then(function (reg) {
+    navigator.serviceWorker.register("service-worker.js").then(function () {
       console.log("✅ Service Worker registered");
     }).catch(function (err) {
       console.log("⚠️ Service Worker not registered:", err);
@@ -796,4 +711,4 @@ if ("serviceWorker" in navigator) {
 </script>
 
 </body>
-</html> 
+</html>
